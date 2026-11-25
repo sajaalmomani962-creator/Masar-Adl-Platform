@@ -113,6 +113,11 @@ def available_actions(repo, user, req):
             continue
         roles = a["roles"]
         if user["role"] in roles and req["request_status"] in a["frm"]:
+            if key == "release_response" and not any(
+                d["visibility"] != "CITIZEN_AND_LAWYER" and d["document_status"] != "REVOKED"
+                for d in repo.select("documents", {"request_id": req["request_id"], "document_type": "ENTITY_RESPONSE"})
+            ):
+                continue
             out.append(key)
     return out
 

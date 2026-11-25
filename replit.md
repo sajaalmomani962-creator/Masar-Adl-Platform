@@ -7,6 +7,8 @@ government service, not legal advice, and not production-ready.
 
 - Web: `pnpm --filter @workspace/masar-al-adl run dev`
 - Tests: `pnpm --filter @workspace/masar-al-adl run test`
+- Authenticated desktop/phone browser tests: `pnpm --filter @workspace/masar-al-adl run test:browser`
+  (isolated TEST-only server; details in `artifacts/masar-al-adl/masar_adl/tests/browser/README.md`)
 - Standalone: `python artifacts/masar-al-adl/serve.py`
 - Normal login: `/login`; presenter-only TEST accounts: `/login?demo=1`
 - Mode/health: `/health`
@@ -42,7 +44,8 @@ Python dependencies are recorded in root `pyproject.toml`/`uv.lock` and
 - PDFs and application logs stay outside public/static folders and outside Git.
   Never fabricate missing files in live SQL Server mode.
 - Keep all original tests and assertions. Baseline was 78 passing; strengthened
-  coverage passed 98 tests. The valid approval test now includes its required reason.
+  coverage passed 99 Python tests plus 10 desktop/phone browser regressions.
+  The valid approval test includes its required reason.
 - No external SQL Server connection was available for live verification.
 
 ## Operational limits

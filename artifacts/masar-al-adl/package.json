@@ -8,10 +8,12 @@
     "build": "python -m compileall -q masar_adl/app",
     "serve": "python serve.py",
     "test": "cd masar_adl && python -m pytest -q tests",
+    "test:browser": "playwright test",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "devDependencies": {
     "@hookform/resolvers": "^3.10.0",
+    "@playwright/test": "^1.65.1",
     "@radix-ui/react-accordion": "^1.2.4",
     "@radix-ui/react-alert-dialog": "^1.1.7",
     "@radix-ui/react-aspect-ratio": "^1.1.3",

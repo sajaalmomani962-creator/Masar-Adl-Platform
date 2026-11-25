@@ -145,6 +145,33 @@ def test_clerk_is_not_offered_judge_decisions(as_user, repo):
     assert 'name="reason"' in judge_page
 
 
+def test_release_action_requires_a_pending_response(as_user, repo):
+    from conftest import PDF, act, flow_to_review
+
+    # The seed response is already released, so neither court role should see
+    # a release action. Server-side duplicate-release rejection remains intact.
+    for username in ("clerk_noor", "judge_adel"):
+        page = as_user(username).get("/requests/1").text
+        assert 'name="action" value="release_response"' not in page
+
+    _, rid = flow_to_review(as_user, repo)
+    clerk, judge = as_user("clerk_noor"), as_user("judge_adel")
+    act(clerk, rid, "start_review")
+    act(judge, rid, "approve", reason="TEST سبب موافقة")
+    act(clerk, rid, "send")
+    officer = as_user("civil_officer_dana")
+    act(officer, rid, "upload_response", files={"file": ("TEST-response.pdf", PDF, "application/pdf")})
+    marker = 'name="action" value="release_response"'
+    assert marker in clerk.get(f"/requests/{rid}").text
+    assert marker in judge.get(f"/requests/{rid}").text
+    act(clerk, rid, "release_response")
+    assert marker not in clerk.get(f"/requests/{rid}").text
+    assert marker not in judge.get(f"/requests/{rid}").text
+    duplicate = act(clerk, rid, "release_response")
+    assert duplicate.status_code == 303
+    assert "لا يوجد رد بانتظار الإتاحة" in clerk.get(f"/requests/{rid}").text
+
+
 def test_released_responses_are_not_in_pending_release_queue(as_user):
     from html.parser import HTMLParser
 
