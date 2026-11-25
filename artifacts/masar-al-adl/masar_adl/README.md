@@ -23,3 +23,9 @@ python -m pytest -q tests
 ملفا `db/` مرجع فقط ولم يتغيرا ولا ينفّذهما التطبيق أو الاختبارات.
 لم تُختبر قاعدة SQL Server حقيقية. تفاصيل خطوات العرض في
 [DEMO_GUIDE.md](DEMO_GUIDE.md).
+
+نتائج فحص جاهزية اتصال SQL Server وحدوده ومتطلبات الاتصال الخاص الآمن:
+[SQLSERVER_VALIDATION.md](SQLSERVER_VALIDATION.md).
+
+نتائج اختبارات الأدوار والواجهة في البيئة التجريبية وحدود التحقق:
+[VERIFICATION.md](VERIFICATION.md).

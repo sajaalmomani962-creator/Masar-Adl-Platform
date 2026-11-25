@@ -1,2 +1,3 @@
 - [Preserve the supplied platform](preserve-platform.md) — retain the existing Python/Jinja application rather than replacing it to match the initial React scaffold.
 - [Browser PDF verification limits](browser-pdf-verification.md) — distinguish PDF delivery from rendering and physical printing; preserve strict upload validation and document permissions.
+- [Demo verification boundary](verification-policy.md) — unavailable live SQL access does not block demo work; clearly separate mock results from real-database checks.

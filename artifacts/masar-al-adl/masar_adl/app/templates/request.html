@@ -2,7 +2,7 @@
 {% block title %}تفاصيل الطلب{% endblock %}
 {% block content %}
 {% set r = v.req %}
-<nav class="crumbs" aria-label="مسار التنقل"><a href="{{ ROLE_HOME[user.role] }}">لوحتي</a><span class="sep">‹</span><a href="/cases/{{ case.case_id }}">{{ case.case_number }}</a><span class="sep">‹</span><strong>طلب #{{ r.request_id }}</strong></nav>
+<nav class="crumbs" aria-label="مسار التنقل"><a href="{{ ROLE_HOME[user.role] }}">لوحتي</a><span class="sep">‹</span>{% if user.role in ENTITY_ROLES %}<span>{{ case.case_number }}</span>{% else %}<a href="/cases/{{ case.case_id }}">{{ case.case_number }}</a>{% endif %}<span class="sep">‹</span><strong>طلب #{{ r.request_id }}</strong></nav>
 <div class="panel mb-3"><div class="bd d-flex flex-wrap justify-content-between align-items-center gap-3">
  <div><div class="d-flex flex-wrap align-items-center gap-3 mb-1"><h1 class="page-title mb-0">{{ r.request_title_ar }}</h1>{{ badge(v) }}</div><div class="sub">إلى: {{ v.entity_name }} · القضية {{ case.case_number }} · {{ case.court_name }}</div></div>
  {% if user.role in ('COURT_CLERK','COURT_JUDGE') %}<a class="btn btn-sm btn-outline-primary no-print" href="/integrity/requests/{{ r.request_id }}">{{ ico('shield') }}تقرير سلسلة الحفظ</a>{% endif %}

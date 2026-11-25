@@ -19,6 +19,8 @@ The dependency is locked in the workspace. Replit's Chromium at
 Playwright browser once:
 
 ```sh
+# After syncing project changes, install the locked JavaScript dependencies:
+pnpm install --frozen-lockfile
 pnpm --filter @workspace/masar-al-adl exec playwright install chromium
 ```
 

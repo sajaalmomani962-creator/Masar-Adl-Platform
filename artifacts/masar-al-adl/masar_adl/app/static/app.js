@@ -44,7 +44,7 @@
         var o = document.createElement("option"); o.value = t[0]; o.textContent = t[1]; o.selected = t[0] === selected; typ.appendChild(o);
       });
     };
-    var initialType = typ.value;
+    var initialType = typ.getAttribute("data-selected-type") || typ.value;
     ent.addEventListener("change", function () { fill(""); });
     fill(initialType);
   }

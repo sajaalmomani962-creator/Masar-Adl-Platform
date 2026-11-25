@@ -14,6 +14,8 @@ government service, not legal advice, and not production-ready.
 - Mode/health: `/health`
 - Main guide: `README.md`; presenter guide:
   `artifacts/masar-al-adl/masar_adl/DEMO_GUIDE.md`
+- Verification results and demo/live boundaries:
+  `artifacts/masar-al-adl/masar_adl/VERIFICATION.md`
 
 The web artifact runs the existing Python application, not the unused initial
 React scaffold. Its managed web service handles both HTML and form submissions.
@@ -44,8 +46,9 @@ Python dependencies are recorded in root `pyproject.toml`/`uv.lock` and
 - PDFs and application logs stay outside public/static folders and outside Git.
   Never fabricate missing files in live SQL Server mode.
 - Keep all original tests and assertions. Baseline was 78 passing; strengthened
-  coverage passed 99 Python tests plus 10 desktop/phone browser regressions.
-  The valid approval test includes its required reason.
+  combined demo-role/recovery coverage passes 125 Python tests.
+  The project also includes desktop/phone browser regressions.
+  The valid approval test now includes its required reason.
 - No external SQL Server connection was available for live verification.
 
 ## Operational limits

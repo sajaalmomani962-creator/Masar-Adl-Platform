@@ -116,6 +116,14 @@ For a deliberate SQL Server setup:
 **Never expose SQL Server publicly, disable its firewall, or commit connection
 credentials. No live SQL Server was available or tested during this work.**
 
+The owner has deferred live verification because the connection details are
+unavailable. This does **not** block development or demonstration: use the
+existing in-memory `demo` repository and isolated mock-adapter tests. Do not
+invent credentials, substitute a database, or treat a passing demo health
+check as evidence of SQL Server connectivity.
+The [SQL Server validation report](artifacts/masar-al-adl/masar_adl/SQLSERVER_VALIDATION.md)
+records actual prerequisites and the pending read-only checks.
+
 ## Environment variables
 
 | Variable | Purpose |
@@ -215,27 +223,35 @@ python -m pytest -q tests
 ```
 
 The original upload was run before application changes: **78 passed**.
-After the migration, interface update, hardening and demo-form recovery fixes:
-**98 passed**.
+After the migration, interface update and initial hardening: **93 passed**.
+The latest combined demo verification (2026-11-25) passes **125 tests**.
 All original tests and assertions are retained. The successful approval scenario
 now supplies a reason, matching V9, and new regressions explicitly reject approval
 without one. Added coverage includes FastAPI identity, Argon2id/legacy hash
 verification, raw-PDF auditing, HTTPS cookies, live-mode document safety, invalid
 transition inputs, restricted response visibility, and inactive-entity sessions.
-An authenticated browser journey was verified at desktop size (1440×1000):
-lawyer submission with a PDF, clerk review, judge approval with a reason, entity
-processing/response upload, court release, citizen document access, audit history
-and custody report. The citizen dashboard, request page, and mobile navigation
-were also verified at 390×844 with no page-wide horizontal overflow. Browser
-checks confirmed that the citizen cannot access another citizen's case or see
-the unreleased response, lawyer PDF or internal decision reason.
+Additional checks cover exact dashboard/record access for all ten TEST accounts,
+all four entity accounts processing their own requests, notification ownership,
+missing-PDF draft recovery, invalid-upload form preservation, and hiding completed
+response-release actions. Build compilation and JavaScript syntax checks pass.
 
-The browser pass found that upload-validation errors cleared the new-request
-form. The fix preserves the title, case, entity and request type, with five new
-regressions covering recovery, unchanged MIME enforcement, correction/resubmission
-and protected print fallback links. If submission fails after a draft was saved,
-the lawyer is taken to that existing draft instead of an empty creation form.
-Browsers still require the file to be selected again after an error.
+An authenticated desktop browser also completed the lawyer → clerk → judge →
+entity → court release → citizen lifecycle, including PDF endpoints and private
+reason visibility checks. All ten TEST accounts passed dashboard/menu,
+notification and logout checks at **1440 × 1000** and **390 × 844**. Phone browser
+checks also passed the judge's audit/integrity filters and custody report, and
+the lawyer's invalid-upload → retained form → saved draft → PDF upload → submission
+recovery journey. Mock tests cover rejection, return/resubmission,
+delay/resume, invalid uploads, document permissions, CSRF, sessions and atomic
+rollback; these are not claims of live SQL Server behavior.
+See the [verification report](artifacts/masar-al-adl/masar_adl/VERIFICATION.md)
+for the role/device results and remaining limits.
+
+Upload-validation errors preserve the title, case, entity and request type.
+If submission fails after a draft was saved, the lawyer is taken to that existing
+draft instead of an empty creation form. Browsers still require the file to be
+selected again after an error. Protected standalone print links are retained
+when a browser's embedded PDF viewer is unavailable.
 
 ## Known limitations
 
@@ -263,6 +279,9 @@ Browsers still require the file to be selected again after an error.
     blocked its built-in PDF viewer, although the protected PDF endpoints
     returned valid bytes. The print page includes a protected standalone-window
     link. A native print dialog and physical printer output were not verified.
+11. Browser verification uses the demo environment and emulated viewports,
+    not live government services or physical phones. See the verification report
+    for the exact coverage; native printer completion is not verified.
 
 **Proposed schema changes: none applied.** If entity access to lawyer attachments
 or an independent audit role is desired later, it requires an explicit policy
