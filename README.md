@@ -215,15 +215,27 @@ python -m pytest -q tests
 ```
 
 The original upload was run before application changes: **78 passed**.
-After the migration, interface update and hardening: **93 passed**.
+After the migration, interface update, hardening and demo-form recovery fixes:
+**98 passed**.
 All original tests and assertions are retained. The successful approval scenario
 now supplies a reason, matching V9, and new regressions explicitly reject approval
 without one. Added coverage includes FastAPI identity, Argon2id/legacy hash
 verification, raw-PDF auditing, HTTPS cookies, live-mode document safety, invalid
 transition inputs, restricted response visibility, and inactive-entity sessions.
-The public login was visually checked at desktop and phone sizes. Signed-in
-screens were checked through automated rendering and workflow tests, not through
-an authenticated browser session.
+An authenticated browser journey was verified at desktop size (1440×1000):
+lawyer submission with a PDF, clerk review, judge approval with a reason, entity
+processing/response upload, court release, citizen document access, audit history
+and custody report. The citizen dashboard, request page, and mobile navigation
+were also verified at 390×844 with no page-wide horizontal overflow. Browser
+checks confirmed that the citizen cannot access another citizen's case or see
+the unreleased response, lawyer PDF or internal decision reason.
+
+The browser pass found that upload-validation errors cleared the new-request
+form. The fix preserves the title, case, entity and request type, with five new
+regressions covering recovery, unchanged MIME enforcement, correction/resubmission
+and protected print fallback links. If submission fails after a draft was saved,
+the lawyer is taken to that existing draft instead of an empty creation form.
+Browsers still require the file to be selected again after an error.
 
 ## Known limitations
 
@@ -247,8 +259,10 @@ an authenticated browser session.
    storage are future production requirements.
 9. Integrity rules detect observable inconsistencies, not fraud or legal fault.
    Priority weights need real-world calibration and are not binding decisions.
-10. Signed-in pages are exercised by automated render and workflow tests.
-    Public login views can be visually checked without bypassing authentication.
+10. Embedded PDF viewing depends on browser support. The headless test browser
+    blocked its built-in PDF viewer, although the protected PDF endpoints
+    returned valid bytes. The print page includes a protected standalone-window
+    link. A native print dialog and physical printer output were not verified.
 
 **Proposed schema changes: none applied.** If entity access to lawyer attachments
 or an independent audit role is desired later, it requires an explicit policy

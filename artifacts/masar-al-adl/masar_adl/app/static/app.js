@@ -38,12 +38,14 @@
   if (holder && ent && typ) {
     var map = {};
     try { map = JSON.parse(holder.getAttribute("data-types") || holder.textContent || "{}"); } catch (err) { map = {}; }
-    var fill = function () {
+    var fill = function (selected) {
       typ.innerHTML = "";
       (map[ent.value] || []).forEach(function (t) {
-        var o = document.createElement("option"); o.value = t[0]; o.textContent = t[1]; typ.appendChild(o);
+        var o = document.createElement("option"); o.value = t[0]; o.textContent = t[1]; o.selected = t[0] === selected; typ.appendChild(o);
       });
     };
-    ent.addEventListener("change", fill); fill();
+    var initialType = typ.value;
+    ent.addEventListener("change", function () { fill(""); });
+    fill(initialType);
   }
 })();

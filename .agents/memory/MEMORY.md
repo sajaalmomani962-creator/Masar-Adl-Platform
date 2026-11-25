@@ -1,1 +1,2 @@
 - [Preserve the supplied platform](preserve-platform.md) — retain the existing Python/Jinja application rather than replacing it to match the initial React scaffold.
+- [Browser PDF verification](browser-pdf-verification.md) — headless PDF viewer failures are not proof that a protected PDF endpoint is broken; preserve strict upload validation.

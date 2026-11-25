@@ -259,27 +259,49 @@ def create_app(settings: Settings = None, repo=None):
         parties = repo.select("case_parties", {"case_id": case["case_id"]})
         return render(request, "case.html", user, s, tok, summary=case_summary(repo, user, case), parties=parties)
 
+    def render_request_form(request, user, s, tok, values=None, error=None, status=200):
+        values = values or {}
+        ents = [e for e in repo.select("government_entities") if e["entity_type"] == "GOVERNMENT" and e["is_active"]]
+        types = {e["entity_id"]: workflow.request_type_options(repo, e["entity_id"]) for e in ents}
+        selected_entity = next(
+            (e["entity_id"] for e in ents if str(e["entity_id"]) == values.get("entity_id")),
+            ents[0]["entity_id"] if ents else None,
+        )
+        return render(request, "request_new.html", user, s, tok, cases=cases_for(repo, user), entities=ents,
+                      types=types, types_json={str(k): v for k, v in types.items()},
+                      values=values, error=error, status=status, initial_types=types.get(selected_entity, []))
+
     async def request_new(request):
         tok, s, user = current(request)
         role_gate(user, {"LAWYER"})
-        ents = [e for e in repo.select("government_entities") if e["entity_type"] == "GOVERNMENT" and e["is_active"]]
-        types = {e["entity_id"]: workflow.request_type_options(repo, e["entity_id"]) for e in ents}
-        return render(request, "request_new.html", user, s, tok, cases=cases_for(repo, user), entities=ents,
-                      types=types, types_json={str(k): v for k, v in types.items()})
+        return render_request_form(request, user, s, tok)
 
     async def request_create(request):
         tok, s, user = current(request)
         role_gate(user, {"LAWYER"})
         form = await form_of(request, s)
+        # Only non-sensitive form fields are echoed back, escaped by Jinja.
+        # Browsers intentionally require the file to be selected again.
+        values = {key: str(form.get(key, ""))[:limit] for key, limit in
+                  (("case_id", 20), ("entity_id", 20), ("request_type", 60), ("title", 220))}
         try:
             rid = workflow.create_request(
                 repo, settings, user, intid(form.get("case_id")), intid(form.get("entity_id")),
                 str(form.get("request_type", "")), str(form.get("title", "")), await upload_of(form),
-                submit=form.get("intent") == "submit")
+                submit=False)
         except (NotFound, Forbidden):
             raise
         except AppError as e:
-            return go("/requests/new", tok, "danger", e.message)
+            return render_request_form(request, user, s, tok, values=values, error=e.message, status=422)
+        if form.get("intent") == "submit":
+            try:
+                workflow.perform(repo, settings, user, rid, "submit")
+            except (NotFound, Forbidden):
+                raise
+            except AppError as e:
+                # The draft was already saved. Take the lawyer to it rather
+                # than inviting a duplicate new request after a failed submit.
+                return go(f"/requests/{rid}", tok, "warning", f"حُفظت المسودة، ولم يُقدَّم الطلب: {e.message}")
         return go(f"/requests/{rid}", tok, "success", "تم حفظ الطلب" if form.get("intent") != "submit" else "تم تقديم الطلب للمحكمة")
 
     async def request_page(request):

@@ -42,7 +42,7 @@ Python dependencies are recorded in root `pyproject.toml`/`uv.lock` and
 - PDFs and application logs stay outside public/static folders and outside Git.
   Never fabricate missing files in live SQL Server mode.
 - Keep all original tests and assertions. Baseline was 78 passing; strengthened
-  coverage passed 93 tests. The valid approval test now includes its required reason.
+  coverage passed 98 tests. The valid approval test now includes its required reason.
 - No external SQL Server connection was available for live verification.
 
 ## Operational limits
