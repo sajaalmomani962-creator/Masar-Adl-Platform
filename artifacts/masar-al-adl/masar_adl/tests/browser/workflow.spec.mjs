@@ -267,15 +267,135 @@ for (const target of destinations) {
     expect(printed.status()).toBe(200);
     expect(printed.headers()["content-type"]).toContain("application/pdf");
     expect(Buffer.compare(await printed.body(), bytes)).toBe(0);
+    // Native headless PDF viewers may be blocked. The local renderer must
+    // actually paint the authorized PDF instead of merely returning bytes.
+    await popup.getByRole("button", { name: "تحميل المعاينة البديلة", exact: true }).click();
+    await expect(popup.locator("[data-pdf-canvas]")).toHaveAttribute("data-rendered-page", "1");
+    await expect(popup.locator("[data-pdf-page]")).toHaveText("الصفحة 1 من 1");
+    expect(await popup.locator("[data-pdf-canvas]").evaluate(canvas => {
+      const pixels = canvas.getContext("2d").getImageData(0, 0, canvas.width, canvas.height).data;
+      let ink = 0;
+      for (let i = 0; i < pixels.length; i += 16) {
+        if (pixels[i + 3] > 0 && Math.min(pixels[i], pixels[i + 1], pixels[i + 2]) < 200) ink++;
+      }
+      return ink > 50;
+    })).toBe(true);
     await capture(popup, info, `${target.entity}-citizen-print`);
     await popup.close();
     await logout(page);
     // Another citizen cannot open the request or any form of its released PDF.
     await login(page, "citizen_layla");
     expect((await page.goto(path)).status()).toBe(404);
-    for (const forbidden of [responseDocument, printPath, raw]) {
+    for (const forbidden of [responseDocument, printPath, raw, responseDocument.replace(/\/view$/, "/preview")]) {
       expect((await page.request.get(forbidden)).status()).toBe(404);
     }
     expect(errors).toEqual([]);
+  });
+}
+
+test("local PDF preview paginates and fails safely for malformed TEST content", async ({ page }, info) => {
+  const errors = [];
+  page.on("pageerror", error => errors.push(error.message));
+  await login(page, "lawyer_omar");
+  const validPdf = await page.request.get("/__TEST_fixture.pdf?pages=2");
+  expect(validPdf.ok()).toBe(true);
+  for (const [kind, buffer] of [
+    ["multipage", await validPdf.body()],
+    ["malformed", Buffer.from("%PDF-1.4\nTEST deliberately malformed PDF content\n%%EOF\n")],
+  ]) {
+    await page.goto("/requests/new");
+    await page.getByLabel("عنوان الطلب").fill(`TEST PDF ${kind} ${randomUUID().slice(0, 8)}`);
+    await page.getByLabel("ملف PDF (حتى 10MB)").setInputFiles({
+      name: `TEST-${kind}.pdf`, mimeType: "application/pdf", buffer,
+    });
+    await page.getByRole("button", { name: "حفظ كمسودة", exact: true }).click();
+    const preview = await page.getByRole("link", { name: "معاينة بديلة", exact: true }).getAttribute("href");
+    await page.goto(preview);
+    await expect(page.getByRole("heading", { name: "طلب كتاب - نسخة مقدم الطلب" })).toBeVisible();
+    await page.getByRole("button", { name: "تحميل المعاينة البديلة", exact: true }).click();
+    if (kind === "multipage") {
+      await expect(page.locator("[data-pdf-canvas]")).toHaveAttribute("data-rendered-page", "1");
+      await expect(page.locator("[data-pdf-page]")).toHaveText("الصفحة 1 من 2");
+      await expect(page.getByRole("button", { name: "الصفحة السابقة", exact: true })).toBeDisabled();
+      await page.getByRole("button", { name: "الصفحة التالية", exact: true }).click();
+      await expect(page.locator("[data-pdf-canvas]")).toHaveAttribute("data-rendered-page", "2");
+      await expect(page.locator("[data-pdf-page]")).toHaveText("الصفحة 2 من 2");
+      await expect(page.getByRole("button", { name: "الصفحة التالية", exact: true })).toBeDisabled();
+      await page.getByRole("button", { name: "الصفحة السابقة", exact: true }).click();
+      await expect(page.locator("[data-pdf-canvas]")).toHaveAttribute("data-rendered-page", "1");
+    } else {
+      await expect(page.locator("[data-pdf-status]")).toContainText("تعذّرت المعاينة");
+      await expect(page.locator("[data-pdf-reader]")).toBeHidden();
+      await expect(page.getByRole("button", { name: "تحميل المعاينة البديلة", exact: true })).toBeEnabled();
+      await expect(page.getByRole("link", { name: "فتح PDF في عارض المتصفح", exact: true })).toBeVisible();
+    }
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
+    await capture(page, info, `pdf-${kind}`);
+  }
+  expect(errors).toEqual([]);
+});
+
+for (const decision of ["return", "reject"]) {
+  test(`TEST ${decision}: reason validation, privacy, notifications and allowed next actions`, async ({ page }, info) => {
+    const unique = randomUUID().slice(0, 8);
+    const reason = `TEST سبب خاص ${decision} ${unique}`;
+    const pdf = await page.request.get("/__TEST_fixture.pdf");
+    const bytes = await pdf.body();
+    await login(page, "lawyer_omar");
+    await page.goto("/requests/new");
+    await page.getByLabel("عنوان الطلب").fill(`TEST ${decision} ${unique}`);
+    await page.getByLabel("ملف PDF (حتى 10MB)").setInputFiles({
+      name: "TEST-decision.pdf", mimeType: "application/pdf", buffer: bytes,
+    });
+    await page.getByRole("button", { name: "حفظ وتقديم للمحكمة", exact: true }).click();
+    const path = new URL(page.url()).pathname;
+    await status(page, "مقدَّم");
+    await logout(page);
+    await login(page, "clerk_noor");
+    await page.goto(path);
+    if (decision === "reject") {
+      // Review starts with the clerk; the judge decides after that handoff.
+      await perform(page, "start_review");
+      await logout(page);
+      await login(page, "judge_adel");
+      await page.goto(path);
+    }
+    const decisionForm = action(page, decision);
+    await decisionForm.getByLabel("السبب", { exact: true }).fill("   ");
+    await decisionForm.getByRole("button").click();
+    await expect(page.getByRole("alert")).toContainText("السبب مطلوب");
+    await status(page, decision === "return" ? "مقدَّم" : "قيد مراجعة المحكمة");
+    await action(page, decision).getByLabel("السبب", { exact: true }).fill(reason);
+    await perform(page, decision);
+    await status(page, decision === "return" ? "معاد للتعديل" : "مرفوض");
+    await capture(page, info, `${decision}-court`);
+    await logout(page);
+    await login(page, "citizen_tariq");
+    await page.goto(path);
+    await expect(page.locator("main")).not.toContainText(reason);
+    await page.goto("/notifications");
+    await expect(page.locator("main")).not.toContainText(reason);
+    await logout(page);
+    await login(page, "lawyer_omar");
+    await page.goto(path);
+    if (decision === "return") {
+      await expect(action(page, "submit")).toHaveCount(1);
+      await page.getByLabel("ملف PDF", { exact: true }).setInputFiles({
+        name: "TEST-corrected.pdf", mimeType: "application/pdf", buffer: bytes,
+      });
+      await page.getByRole("button", { name: "رفع / استبدال الملف" }).click();
+      await perform(page, "submit");
+      await status(page, "مقدَّم");
+      await expect(page).toHaveURL(path);
+    } else {
+      await expect(action(page, "submit")).toHaveCount(0);
+      await expect(page.locator('form[action$="/pdf"]')).toHaveCount(0);
+      await logout(page);
+      await login(page, "clerk_noor");
+      await page.goto(path);
+      await expect(action(page, "send")).toHaveCount(0);
+    }
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
+    await capture(page, info, `${decision}-result`);
   });
 }

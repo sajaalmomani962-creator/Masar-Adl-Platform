@@ -1,5 +1,20 @@
 # Demo verification — 2026-11-25
 
+> **Latest delivery:** root `FINAL_DELIVERY_REPORT.md` supersedes the previous
+> results below: **178 Python tests and all 16 browser cases passed**.
+> Private App Storage was enabled for new PDFs in development, with an actual
+> writer-exit/fresh-reader TEST probe, anonymous denial and cleanup checks.
+> Demo request/document metadata is still not persistent.
+
+> **Updated finalization, 2026-11-26:** see root `FINALIZATION_REPORT.md`.
+> The final Python suite passes **147** tests. New local PDF rendering and
+> two-page controls were verified in desktop/mobile-emulated Chromium.
+> The complete browser run had 14 successes and two test-setup failures;
+> after correcting the clerk/judge handoff, both targeted rejection checks passed.
+> No unresolved failures remain in these 16 checked cases. Persistent cloud
+> storage and actual physical-device/native printing remain unverified.
+> The following sections preserve the earlier verification record.
+
 ## Scope and environment
 
 The owner confirmed that real SQL Server connection details are unavailable.

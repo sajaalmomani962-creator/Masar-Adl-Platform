@@ -286,3 +286,6 @@ iframe.pdf{width:100%;height:80vh;border:1px solid var(--line);border-radius:12p
  a{text-decoration:none;color:inherit}
 }
 .print-head{display:none}
+.pdf-preview{margin:1rem 0;padding:1rem;background:#fff;border:1px solid var(--line,#d9e2ea);border-radius:14px}
+.pdf-preview [hidden]{display:none !important}
+.pdf-canvas{display:block;max-width:100%;height:auto;margin:0 auto;background:#fff;border:1px solid #d9e2ea}

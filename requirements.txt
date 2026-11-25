@@ -1,1 +1,2 @@
 -r artifacts/masar-al-adl/masar_adl/requirements.txt
+replit-object-storage

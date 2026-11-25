@@ -1,3 +1,4 @@
+import os
 import uuid
 from io import BytesIO
 from pathlib import Path
@@ -8,7 +9,7 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfgen import canvas
 
-from . import audit
+from . import audit, private_storage
 from .authz import Decision, document_decision
 from .errors import BadRequest, Forbidden, NotFound
 
@@ -66,6 +67,9 @@ def ensure_demo_files(repo, settings):
         return
     settings.storage_dir.mkdir(parents=True, exist_ok=True)
     for d in repo.select("documents"):
+        if private_storage.is_reference(d["file_name"]):
+            # A missing private object must never become a fabricated local PDF.
+            continue
         p = _path(settings, d["file_name"])
         if p and not p.exists():
             p.write_bytes(sample_pdf_bytes(f"doc {d['document_id']} {d['document_type']}"))
@@ -91,13 +95,26 @@ def validate_pdf(filename, content_type, data, max_bytes):
 
 
 def save_pdf(settings, data) -> str:
-    settings.storage_dir.mkdir(parents=True, exist_ok=True)
+    if getattr(settings, "pdf_storage_backend", "local") == "app_storage":
+        return private_storage.save(settings, data)
+    settings.storage_dir.mkdir(parents=True, exist_ok=True, mode=0o700)
     name = f"{uuid.uuid4().hex}.pdf"
-    (settings.storage_dir / name).write_bytes(data)
+    path = settings.storage_dir / name
+    # Exclusive creation neither follows an existing symlink nor overwrites a
+    # collision. New uploads are owner-only even with a permissive process umask.
+    fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+    try:
+        with os.fdopen(fd, "wb") as output:
+            output.write(data)
+            output.flush()
+            os.fsync(output.fileno())
+    except BaseException:
+        path.unlink(missing_ok=True)
+        raise
     return name
 
 
-def open_document(repo, settings, user, doc_id, action, log=True):
+def open_document(repo, settings, user, doc_id, action, log=True, verify_only=False):
     """Check access (server-side, every time), audit, and return (doc, path)."""
     doc = repo.get("documents", doc_id) if isinstance(doc_id, int) else None
     if not doc:
@@ -110,10 +127,19 @@ def open_document(repo, settings, user, doc_id, action, log=True):
         if not related:
             raise NotFound()
         raise Forbidden(reason)
-    path = _path(settings, doc["file_name"])
-    if path is None or not path.exists():
-        raise NotFound("الملف غير موجود في التخزين")
-    if log:
-        audit.write(repo, user["user_id"], req["case_id"], req["request_id"], ACTION_CODE[action], True,
-                    f"{action} للمستند {doc_id} ({doc['document_type']})")
+    remote = private_storage.is_reference(doc["file_name"])
+    if remote:
+        path = private_storage.resolve(settings, doc["file_name"], verify_only=verify_only)
+    else:
+        path = _path(settings, doc["file_name"])
+        if path is None or not path.exists():
+            raise NotFound("الملف غير موجود في التخزين")
+    try:
+        if log:
+            audit.write(repo, user["user_id"], req["case_id"], req["request_id"], ACTION_CODE[action], True,
+                        f"{action} للمستند {doc_id} ({doc['document_type']})")
+    except BaseException:
+        if remote:
+            private_storage.discard(path)
+        raise
     return doc, path

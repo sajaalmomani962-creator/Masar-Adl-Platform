@@ -1,0 +1,9 @@
+{% extends "base.html" %}{% block title %}معاينة مستند{% endblock %}
+{% block content %}
+<h1 class="page-title">{{ doc.document_title_ar }}</h1>
+<p class="sub">معاينة للقراءة فقط. الطباعة والتنزيل يخضعان لصلاحياتهما المنفصلة؛ لا تتغير صلاحيات المستند هنا.</p>
+<p><a href="/documents/{{ doc.document_id }}/raw?for=view" target="_blank" rel="noopener">فتح PDF في عارض المتصفح</a></p>
+{% include "_pdf_preview.html" %}
+<iframe class="pdf" src="/documents/{{ doc.document_id }}/raw?for=view" title="{{ doc.document_title_ar }}"></iframe>
+{% endblock %}
+{% block scripts %}<script type="module" src="/static/pdf-preview.js?v=1"></script>{% endblock %}

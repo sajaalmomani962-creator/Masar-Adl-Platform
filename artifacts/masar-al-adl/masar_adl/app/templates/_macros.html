@@ -47,6 +47,7 @@
  <div class="d-flex gap-3 align-items-center"><span class="dic">{{ ico('doc') }}</span><div><strong>{{ d.document_title_ar }}</strong><div class="small text-muted">{{ d.document_type_ar }} — {{ d.document_status_ar }} — {{ d.visibility_ar }}</div></div></div>
  <div class="acts">
   {% if d.can.view %}<a class="btn btn-sm btn-primary" target="_blank" rel="noopener" href="/documents/{{ d.document_id }}/view">{{ ico('eye') }}عرض</a>{% endif %}
+  {% if d.can.view %}<a class="btn btn-sm btn-outline-primary" target="_blank" rel="noopener" href="/documents/{{ d.document_id }}/preview">معاينة بديلة</a>{% endif %}
   {% if d.can.download %}<a class="btn btn-sm btn-outline-primary" href="/documents/{{ d.document_id }}/download">{{ ico('download') }}تنزيل</a>{% endif %}
   {% if d.can.print %}<a class="btn btn-sm btn-outline-primary" target="_blank" rel="noopener" href="/documents/{{ d.document_id }}/print">{{ ico('print') }}طباعة</a>{% endif %}
  </div></div>{% endfor %}</div>

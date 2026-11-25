@@ -89,6 +89,10 @@ limits are process-local. Demo changes persist across requests and different use
 sessions in that process, but reset on restart. The reset action also restores
 the original seed.
 
+New PDF bytes can persist independently in private App Storage, but this does
+not restore process-local request/document metadata after a demo reset. See
+[PERSISTENT_PDF_STORAGE.md](PERSISTENT_PDF_STORAGE.md) for the exact boundary.
+
 ## Data modes and SQL Server
 
 | `DATA_MODE` | Behavior |
@@ -193,6 +197,9 @@ notifications. Rejected attempts are audited where the schema allows.
 Entity responses remain court/lawyer-only until an authorized court user releases
 them to the citizen. PDF uploads require a PDF extension, MIME type, signature,
 and maximum 10 MiB size. Files use generated names in private storage.
+New uploads in the current development preview use private App Storage with
+opaque references in the existing filename column; legacy local files remain
+in place. All file access still passes the same server-side authorization.
 Demo startup creates the three seed-referenced sample PDFs with the Arabic stamp
 **مستند تجريبي**. Live-data mode never fabricates missing documents.
 
@@ -224,7 +231,10 @@ python -m pytest -q tests
 
 The original upload was run before application changes: **78 passed**.
 After the migration, interface update and initial hardening: **93 passed**.
-The latest combined demo verification (2026-11-25) passes **125 tests**.
+The latest delivery verification (2026-11-26) passes **178 Python tests**
+and **16 browser cases in one complete run**, with no failures.
+See [FINAL_DELIVERY_REPORT.md](FINAL_DELIVERY_REPORT.md) for the private-cloud
+restart proof, exact scope, remaining limitations and delivery decision.
 All original tests and assertions are retained. The successful approval scenario
 now supplies a reason, matching V9, and new regressions explicitly reject approval
 without one. Added coverage includes FastAPI identity, Argon2id/legacy hash
@@ -260,7 +270,8 @@ when a browser's embedded PDF viewer is unavailable.
 2. SQL Server is supported through the supplied adapter, but only its fake-driver
    tests have run; a real secure SQL Server connection is unverified.
 3. Demo changes, sessions and rate limits are in memory and lost on restart.
-   Private local files are not a durable shared storage service.
+   New PDFs in development use private App Storage; legacy local files are not
+   migrated. Persistent bytes do not make demo request/document metadata durable.
 4. `audit_logs` requires an actor and case. Login failures or unknown records
    cannot be inserted there; applicable events use the application logger instead.
 5. There is no administrator/independent-monitor role. Judges see the audit log;
@@ -271,14 +282,16 @@ when a browser's embedded PDF viewer is unavailable.
    No permission row is silently added to bypass these limits.
 7. A single court exists in the seed. Court staff share that court's case scope.
 8. PDF validation is not malware scanning, content sanitization, or digital
-   signature verification. Those, MFA, distributed sessions/rate limits and durable
-   storage are future production requirements.
+   signature verification. Those, MFA, distributed sessions/rate limits and
+   production storage/backup/retention verification remain production requirements.
 9. Integrity rules detect observable inconsistencies, not fraud or legal fault.
    Priority weights need real-world calibration and are not binding decisions.
-10. Embedded PDF viewing depends on browser support. The headless test browser
+10. Native embedded PDF viewing depends on browser support. The headless test browser
     blocked its built-in PDF viewer, although the protected PDF endpoints
     returned valid bytes. The print page includes a protected standalone-window
-    link. A native print dialog and physical printer output were not verified.
+    link and a local read-only PDF.js alternative. Actual canvas rendering and
+    two-page navigation were checked in desktop/mobile-emulated Chromium; native
+    print-dialog output and physical printer output were not verified.
 11. Browser verification uses the demo environment and emulated viewports,
     not live government services or physical phones. See the verification report
     for the exact coverage; native printer completion is not verified.

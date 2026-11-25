@@ -24,6 +24,8 @@ class Settings:
     sql_trust_cert: bool = field(default_factory=lambda: _bool("SQL_SERVER_TRUST_CERT", False))
     sql_timeout: int = field(default_factory=lambda: int(os.getenv("SQL_SERVER_TIMEOUT", "5")))
     storage_dir: Path = field(default_factory=lambda: Path(os.getenv("STORAGE_DIR", str(BASE_DIR / "storage"))))
+    pdf_storage_backend: str = field(default_factory=lambda: os.getenv("PDF_STORAGE_BACKEND", "local").strip().lower())
+    pdf_storage_bucket: str = field(default_factory=lambda: os.getenv("MASAR_PDF_BUCKET_ID", "").strip())
     log_dir: Path = field(default_factory=lambda: Path(os.getenv("LOG_DIR", str(BASE_DIR / "logs"))))
     secure_cookies: bool = field(default_factory=lambda: _bool("SECURE_COOKIES", False))
     idle_timeout: int = field(default_factory=lambda: int(os.getenv("SESSION_IDLE_SECONDS", "1800")))

@@ -57,3 +57,9 @@ timeoutMs = 20000
 [nix]
 channel = "stable-25_05"
 packages = ["freetype", "glibcLocales"]
+
+[userenv]
+
+[userenv.development]
+MASAR_PDF_BUCKET_ID = "replit-objstore-3a3e9c88-9320-4bc8-b819-15bdeede409f"
+PDF_STORAGE_BACKEND = "app_storage"

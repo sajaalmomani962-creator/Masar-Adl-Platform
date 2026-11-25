@@ -1,0 +1,30 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "jukxGLRfT6mjNzD8R0sf3"
+uri = "file://FINALIZATION_REPORT.md"
+type = "text"
+title = "تقرير التسليم النهائي وحدود التحقق"
+description = "تفاصيل التنفيذ والاختبارات ونتائج PDF وحدود التخزين وإعادة التشغيل والأجهزة غير المتاحة."
+logical_id = "2403f110-cae1-4fce-a3bd-1458e969465c"
+content_hash = "sha256:338285449ea1196cbc49f10378b5d5e36315ade15955daee6ea120ddfa505dd9"
+size = 10500
+mtime_ms = 1795641371852
+storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:1bf81b07-135c-4f07-a84d-c5ca7be55d4b/2403f110-cae1-4fce-a3bd-1458e969465c/23d08de9-c0c6-462b-81a6-e60ad3af4f49"
+storage_version_token = "1795641534337632"
+content_type = "text/markdown"
+
+[[outputs]]
+id = "3y-nQBdVdc3XAwsAPxEFG"
+uri = "file://FINAL_DELIVERY_REPORT.md"
+type = "text"
+title = "تقرير التسليم النهائي بعد تفعيل التخزين الخاص"
+description = "178 اختبار Python و16 اختبار متصفح ناجحًا، مع إثبات حفظ ملف TEST في التخزين الخاص عبر عمليتين مستقلتين وحدود البيانات التجريبية."
+logical_id = "82d04191-9dd1-4da2-aacd-2b0263f5cd40"
+content_hash = "sha256:3b50045739440b664d5a9d36a58230772f29ca43090601b2c2e9d5eadbf8ab20"
+size = 3616
+mtime_ms = 1795642851749
+storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:1bf81b07-135c-4f07-a84d-c5ca7be55d4b/82d04191-9dd1-4da2-aacd-2b0263f5cd40/f071c8a5-04ab-46c7-b69d-3efea5ffb16c"
+storage_version_token = "1795643029696727"
+content_type = "text/markdown"

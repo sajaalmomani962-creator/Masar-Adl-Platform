@@ -24,7 +24,8 @@ pnpm install --frozen-lockfile
 pnpm --filter @workspace/masar-al-adl exec playwright install chromium
 ```
 
-Use Node.js 20+ and the project's Python dependencies. Chromium also requires its
+Use Node.js 24+ and the project's Python dependencies (the pinned PDF renderer
+requires a modern Node runtime). Chromium also requires its
 normal operating-system libraries.
 
 ## Safety and isolation
@@ -94,6 +95,13 @@ Tests run serially against one in-memory demo process. Do not increase workers
 or set `reuseExistingServer: true`: that would remove predictable isolation.
 
 ## Independent visual check limitations
+
+The finalization extension now also tests actual local PDF.js canvas rendering
+with nonblank pixel checks, two-page navigation, malformed-file recovery, and
+return/rejection workflows at both configured sizes. It does not remove or
+weaken existing assertions. The renderer uses authorized raw endpoints and
+local library assets; it does not certify the native PDF viewer or printing.
+See root `FINALIZATION_REPORT.md` for the exact full/targeted run history.
 
 The separate authenticated browser check completed the civil-status journey,
 including mobile notifications/menu/logout and the citizen's print tab. Its

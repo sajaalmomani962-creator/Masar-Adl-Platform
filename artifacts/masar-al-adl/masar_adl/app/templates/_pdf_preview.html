@@ -1,0 +1,18 @@
+<section class="pdf-preview no-print" aria-label="معاينة PDF بديلة" data-pdf-src="/documents/{{ doc.document_id }}/raw?for={{ pdf_action }}">
+ <p class="small">إذا كان عارض المتصفح فارغًا، استخدم المعاينة البديلة. تعرض صفحة واحدة كل مرة ولا تشغّل JavaScript داخل المستند. لطباعة الملف كاملًا استخدم عارض المتصفح؛ هذه المعاينة ليست إثباتًا لنجاح الطباعة.</p>
+ {% if pdf_preview_available %}
+ <button type="button" class="btn btn-primary" data-pdf-load>تحميل المعاينة البديلة</button>
+ {% else %}
+ <p class="alert alert-warning">مكتبة المعاينة المحلية غير مثبّتة. استخدم رابط PDF المباشر أو ثبّت اعتماديات الويب حسب README.</p>
+ {% endif %}
+ <p role="status" aria-live="polite" data-pdf-status></p>
+ <div data-pdf-reader hidden>
+  <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+   <button type="button" class="btn btn-outline-primary" data-pdf-prev>الصفحة السابقة</button>
+   <span data-pdf-page></span>
+   <button type="button" class="btn btn-outline-primary" data-pdf-next>الصفحة التالية</button>
+  </div>
+  <canvas class="pdf-canvas" role="img" aria-label="صورة صفحة المستند" data-pdf-canvas></canvas>
+ </div>
+ <noscript>المعاينة البديلة تحتاج JavaScript. يمكنك استخدام رابط PDF المباشر مع استمرار تطبيق الصلاحيات.</noscript>
+</section>

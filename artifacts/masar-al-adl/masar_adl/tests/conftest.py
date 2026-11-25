@@ -6,6 +6,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 os.environ["DATA_MODE"] = "demo"
+os.environ["PDF_STORAGE_BACKEND"] = "local"  # Ordinary tests must never call cloud services.
 
 import pytest
 

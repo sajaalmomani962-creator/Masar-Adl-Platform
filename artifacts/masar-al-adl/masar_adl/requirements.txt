@@ -10,3 +10,4 @@ argon2-cffi>=23
 reportlab>=4.4
 arabic-reshaper>=3
 python-bidi>=0.6
+replit-object-storage==1.0.2

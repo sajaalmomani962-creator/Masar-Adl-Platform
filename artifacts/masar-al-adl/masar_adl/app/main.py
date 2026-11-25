@@ -15,7 +15,7 @@ from starlette.routing import Mount, Route
 from starlette.staticfiles import StaticFiles
 from starlette.templating import Jinja2Templates
 
-from . import audit, documents, workflow
+from . import audit, documents, workflow, private_storage
 from .audit_view import audit_rows, can_view_audit
 from . import integrity, triage
 from .auth import LoginService, SessionStore
@@ -27,6 +27,8 @@ from .repositories import DataModeError, build_repository
 from .summary import case_summary, cases_for, request_view, requests_for, row_view
 
 COOKIE = "masar_session"
+PDFJS_DIR = BASE_DIR.parent / "node_modules" / "pdfjs-dist" / "build"
+PDFJS_ASSETS = {"pdf.mjs": "pdf.min.mjs", "pdf.worker.mjs": "pdf.worker.min.mjs"}
 
 
 class LoginInput(BaseModel):
@@ -44,6 +46,30 @@ templates.env.globals.update(STATUS_AR=STATUS_AR, EVENT_AR=EVENT_AR, DELAY_REASO
 
 class NotAuthenticated(Exception):
     pass
+
+
+class PrivatePDFResponse(FileResponse):
+    """Retain range/disposition semantics and erase per-response cloud transfers."""
+    def __init__(self, *args, temporary=False, **kwargs):
+        self.temporary = temporary
+        super().__init__(*args, **kwargs)
+
+    async def __call__(self, scope, receive, send):
+        try:
+            if self.temporary:
+                # A pathsend-capable server may consume the path after send()
+                # returns; stream temporary files ourselves before removing them.
+                scope = {**scope, "extensions": {
+                    key: value for key, value in scope.get("extensions", {}).items()
+                    if key != "http.response.pathsend"
+                }}
+            await super().__call__(scope, receive, send)
+        finally:
+            if self.temporary:
+                try:
+                    private_storage.discard(self.path)
+                except OSError:
+                    audit.app_logger().warning("PDF transfer cleanup failed")
 
 
 class SecurityHeaders(BaseHTTPMiddleware):
@@ -68,6 +94,7 @@ def create_app(settings: Settings = None, repo=None):
     note = "injected"
     if repo is None:
         repo, note = build_repository(settings)
+    private_storage.configure(settings, repo.mode)
     documents.ensure_demo_files(repo, settings)
     store = SessionStore(settings.idle_timeout, settings.absolute_timeout)
     login_svc = LoginService(settings, store)
@@ -90,6 +117,7 @@ def create_app(settings: Settings = None, repo=None):
 
     def render(request, name, user=None, s=None, tok=None, status=200, **ctx):
         base = {"user": user, "csrf": s["csrf"] if s else "", "demo": repo.mode == "demo",
+                "pdf_preview_available": all((PDFJS_DIR / f).is_file() for f in PDFJS_ASSETS.values()),
                 "data_mode": repo.mode, "flashes": store.pop_flash(tok) if tok else [],
                 "ROLE_HOME": ROLE_HOME,
                 "unread": len(repo.select("notifications", {"user_id": user["user_id"], "is_read": 0})) if user else 0}
@@ -292,7 +320,8 @@ def create_app(settings: Settings = None, repo=None):
         except (NotFound, Forbidden):
             raise
         except AppError as e:
-            return render_request_form(request, user, s, tok, values=values, error=e.message, status=422)
+            return render_request_form(request, user, s, tok, values=values, error=e.message,
+                                       status=e.status if e.status >= 500 else 422)
         if form.get("intent") == "submit":
             try:
                 workflow.perform(repo, settings, user, rid, "submit")
@@ -348,8 +377,11 @@ def create_app(settings: Settings = None, repo=None):
     async def document_get(request):
         tok, s, user = current(request)
         did, mode = intid(request.path_params["doc_id"]), request.path_params["mode"]
+        if mode == "preview":
+            doc, _ = documents.open_document(repo, settings, user, did, "view", verify_only=True)
+            return render(request, "pdf_preview.html", user, s, tok, doc=doc, pdf_action="view")
         if mode == "print":
-            doc, _ = documents.open_document(repo, settings, user, did, "print")
+            doc, _ = documents.open_document(repo, settings, user, did, "print", verify_only=True)
             return render(request, "print.html", user, s, tok, doc=doc)
         if mode == "raw":
             act = request.query_params.get("for", "view")
@@ -357,13 +389,13 @@ def create_app(settings: Settings = None, repo=None):
                 raise NotFound()
             # Raw PDF URLs are directly accessible, so they must also be audited.
             doc, path = documents.open_document(repo, settings, user, did, act)
-            return FileResponse(path, media_type="application/pdf",
+            return PrivatePDFResponse(path, temporary=private_storage.is_reference(doc["file_name"]), media_type="application/pdf",
                                 headers={"Content-Disposition": f'inline; filename="document-{did}.pdf"'})
         if mode not in ("view", "download"):
             raise NotFound()
         doc, path = documents.open_document(repo, settings, user, did, mode)
         disp = "attachment" if mode == "download" else "inline"
-        return FileResponse(path, media_type="application/pdf",
+        return PrivatePDFResponse(path, temporary=private_storage.is_reference(doc["file_name"]), media_type="application/pdf",
                             headers={"Content-Disposition": f'{disp}; filename="document-{did}.pdf"'})
 
     # ---------------- notifications / audit / misc ----------------
@@ -428,8 +460,17 @@ def create_app(settings: Settings = None, repo=None):
     async def health(request):
         ok, msg = repo.health()
         return JSONResponse({"status": "ok" if ok else "error", "data_mode": repo.mode, "note": note,
+                             "document_storage": settings.pdf_storage_backend,
                              "demo_banner": "وضع تجريبي — البيانات ليست من قاعدة البيانات الحية" if repo.mode == "demo" else None},
                             status_code=200 if ok else 503)
+
+    async def pdfjs_asset(request):
+        # Exact allowlist: serve library code only, never uploaded documents,
+        # package internals, arbitrary node_modules or user-controlled paths.
+        filename = PDFJS_ASSETS.get(request.path_params["filename"])
+        if not filename or not (PDFJS_DIR / filename).is_file():
+            raise NotFound()
+        return FileResponse(PDFJS_DIR / filename, media_type="text/javascript")
 
     # ---------------- errors ----------------
     async def on_app_error(request, exc):
@@ -464,6 +505,7 @@ def create_app(settings: Settings = None, repo=None):
         Route("/notifications", notifications_page), Route("/notifications/read", notifications_read, methods=["POST"]),
         Route("/audit", audit_page), Route("/integrity", integrity_page),
         Route("/integrity/requests/{request_id}", custody_page), Route("/demo/reset", demo_reset, methods=["POST"]),
+        Route("/static/vendor/pdfjs/{filename}", pdfjs_asset),
         Mount("/static", StaticFiles(directory=str(BASE_DIR / "app" / "static")), name="static"),
     ]
     # Keep Starlette Route objects deliberately: HTML form handlers and custom
