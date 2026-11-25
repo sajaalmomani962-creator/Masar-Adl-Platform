@@ -1,0 +1,23 @@
+{% extends "base.html" %}{% from "_macros.html" import ico %}{% block title %}طلب كتاب جديد{% endblock %}
+{% block content %}
+<nav class="crumbs" aria-label="مسار التنقل"><a href="{{ ROLE_HOME[user.role] }}">لوحتي</a><span class="sep">‹</span><strong>طلب كتاب جديد</strong></nav>
+<div class="page-head"><div><h1 class="page-title brand">طلب كتاب جديد</h1><div class="sub">يُراجَع الطلب من المحكمة قبل إرساله إلى الجهة المستهدفة.</div></div></div>
+<div class="card"><div class="card-body">
+<form method="post" action="/requests/new" enctype="multipart/form-data">
+ <input type="hidden" name="csrf" value="{{ csrf }}">
+ <div class="row g-3">
+  <div class="col-md-6"><label class="form-label" for="case_id">القضية</label>
+   <select class="form-select" id="case_id" name="case_id" required>{% for c in cases %}<option value="{{ c.case_id }}">{{ c.case_number }} — {{ c.case_type_ar }}</option>{% endfor %}</select></div>
+  <div class="col-md-6"><label class="form-label" for="entity_id">الجهة المستهدفة</label>
+   <select class="form-select" id="entity_id" name="entity_id" required>{% for e in entities %}<option value="{{ e.entity_id }}">{{ e.entity_name_ar }}</option>{% endfor %}</select></div>
+  <div class="col-md-6"><label class="form-label" for="request_type">نوع الطلب</label><select class="form-select" id="request_type" name="request_type" required></select><div class="form-hint">تتغير الأنواع بحسب الجهة المختارة.</div></div>
+  <div class="col-md-6"><label class="form-label" for="title">عنوان الطلب</label><input class="form-control" id="title" name="title" required minlength="5" maxlength="220"></div>
+  <div class="col-12"><label class="form-label" for="file">ملف PDF (حتى 10MB)</label><input class="form-control" type="file" id="file" name="file" accept="application/pdf,.pdf"></div>
+ </div>
+ <div class="form-actions">
+  <button class="btn btn-outline-secondary" name="intent" value="draft">{{ ico('doc') }}حفظ كمسودة</button>
+  <button class="btn btn-primary" name="intent" value="submit" data-confirm-click="تقديم الطلب للمحكمة؟ لن تتمكن من تعديله إلا إذا أُعيد إليك.">{{ ico('send') }}حفظ وتقديم للمحكمة</button>
+ </div>
+</form></div></div>
+<div id="types-data" hidden data-types="{{ types_json|tojson|forceescape }}"></div>
+{% endblock %}

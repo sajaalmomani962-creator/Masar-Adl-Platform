@@ -1,0 +1,68 @@
+{% macro badge(v) %}<span class="pill pill-{{ v.status_class }}">{{ v.status_ar }}</span>{% endmacro %}
+
+{% macro mark(cls="mark") %}<svg class="{{ cls }}" viewBox="0 0 52 52" aria-hidden="true"><rect class="bg" width="52" height="52" rx="12"/><path class="ln" d="M26 10v32M14 18h24M14 18l-5 11a6 6 0 0 0 10 0zM38 18l-5 11a6 6 0 0 0 10 0zM18 42h16"/></svg>{% endmacro %}
+
+{% macro ico(name, color=None, cls="ic-svg") %}<svg class="{{ cls }}" viewBox="0 0 24 24" aria-hidden="true"><path d="{% if name=='doc' %}M6 3h9l4 4v14H6zM14 3v5h5M9 13h6M9 17h4{% elif name=='clock' %}M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM12 7v5l3 2{% elif name=='check' %}M5 12l4.5 4.5L19 7{% elif name=='scale' %}M12 3v18M6 7h12M6 7l-3 7a3.5 3.5 0 0 0 6 0zM18 7l-3 7a3.5 3.5 0 0 0 6 0zM8 21h8{% elif name=='alert' %}M12 9v4M12 17h.01M10.3 4.2L2.6 18a2 2 0 0 0 1.7 3h15.4a2 2 0 0 0 1.7-3L13.7 4.2a2 2 0 0 0-3.4 0z{% elif name=='bell' %}M6 17V11a6 6 0 0 1 12 0v6l2 2H4zM10 21h4{% elif name=='home' %}M4 11l8-7 8 7M6 9.5V20h12V9.5M10 20v-5h4v5{% elif name=='plus' %}M12 5v14M5 12h14{% elif name=='list' %}M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01{% elif name=='shield' %}M12 3l8 3v6c0 4.5-3.4 8-8 9-4.6-1-8-4.5-8-9V6zM8.5 12l2.5 2.5 4.5-5{% elif name=='reset' %}M4 4v6h6M4.5 15a8 8 0 1 0 1.9-8.3L4 10{% elif name=='logout' %}M15 4h4v16h-4M10 8l-4 4 4 4M6 12h10{% elif name=='info' %}M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM12 11v6M12 7.5h.01{% elif name=='eye' %}M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12zM12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6z{% elif name=='download' %}M12 4v11M7 10l5 5 5-5M5 20h14{% elif name=='print' %}M7 9V3h10v6M7 17H4v-7h16v7h-3M7 14h10v7H7z{% elif name=='arrow' %}M19 12H5M11 6l-6 6 6 6{% elif name=='folder' %}M3 6h7l2 2h9v11H3z{% elif name=='lock' %}M6 11h12v10H6zM8.5 11V8a3.5 3.5 0 0 1 7 0v3{% elif name=='users' %}M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM2 21a7 7 0 0 1 14 0M16 3.5a4 4 0 0 1 0 7.5M18 14a6 6 0 0 1 4 7{% elif name=='filter' %}M3 5h18l-7 8v6l-4 2v-8z{% elif name=='upload' %}M12 20V9M7 13l5-5 5 5M5 4h14{% elif name=='send' %}M21 3L10 14M21 3l-7 18-4-7-7-4z{% elif name=='flag' %}M5 21V4M5 4h11l-2 4 2 4H5{% elif name=='inbox' %}M3 13l3-8h12l3 8v6H3zM3 13h5l1 3h6l1-3h5{% else %}M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z{% endif %}"/></svg>{% endmacro %}
+
+{% macro stat(n, label, icon, cls, color) %}<div class="stat"><div class="ic {{ cls }}">{{ ico(icon) }}</div><div><b>{{ n }}</b><span>{{ label }}</span></div></div>{% endmacro %}
+
+{% macro empty(text, icon='inbox') %}<div class="empty"><div class="ei">{{ ico(icon) }}</div><div>{{ text }}</div></div>{% endmacro %}
+
+{% macro request_table(items) %}
+{% if items %}
+<div class="panel"><div class="table-wrap"><table class="dt">
+<thead><tr><th scope="col">#</th><th scope="col">القضية</th><th scope="col">الطلب</th><th scope="col">الجهة</th><th scope="col">الحالة</th>{% if items[0].triage %}<th scope="col">الأولوية</th>{% endif %}<th scope="col">تأخير</th><th scope="col"><span class="visually-hidden">إجراء</span></th></tr></thead><tbody>
+{% for r in items %}<tr>
+<td><strong class="rid">{{ r.req.request_id }}</strong></td><td class="td-nowrap">{{ r.case_number }}</td><td>{{ r.req.request_title_ar }}</td><td>{{ r.entity_name }}</td>
+<td>{{ badge(r) }}</td>{% if r.triage %}<td class="col-triage"><span class="pill pill-{{ r.triage.level_class }}">{{ r.triage.level_ar }} · {{ r.triage.score }}</span><div class="small text-muted mt-1">{{ r.triage.text }}</div></td>{% endif %}<td class="num">{% if r.delay %}{{ r.delay.days }} يوم{% else %}—{% endif %}</td>
+<td class="col-act"><a class="btn btn-sm btn-primary" href="/requests/{{ r.req.request_id }}">التفاصيل{{ ico('arrow', cls='ic-svg ic-sm') }}</a></td></tr>{% endfor %}
+</tbody></table></div></div>
+{% else %}{{ empty('لا توجد طلبات لعرضها.') }}{% endif %}
+{% endmacro %}
+
+{% macro stepper(v) %}
+{% set steps = [('SUBMITTED','قُدّم'),('UNDER_COURT_REVIEW','مراجعة المحكمة'),('APPROVED','اعتُمد'),('SENT_TO_ENTITY','أُرسل للجهة'),('UNDER_PROCESSING','قيد المعالجة'),('RESPONSE_RECEIVED','وصل الرد')] %}
+{% set rank = {'DRAFT':-1,'SUBMITTED':0,'UNDER_COURT_REVIEW':1,'RETURNED_FOR_MODIFICATION':0,'APPROVED':2,'SENT_TO_ENTITY':3,'UNDER_PROCESSING':4,'DELAYED':4,'RESPONSE_RECEIVED':5,'REJECTED':1} %}
+{% set cur = rank[v.req.request_status] %}
+{% if v.req.request_status == 'REJECTED' %}<div class="alert alert-danger mb-0">رفضت المحكمة هذا الطلب.</div>
+{% else %}
+<div class="table-wrap"><ol class="stepper list-unstyled m-0" aria-label="مراحل الطلب">
+{% for k, label in steps %}
+ {% set is_done = (loop.index0 < cur or (loop.index0 == cur and v.req.request_status == 'RESPONSE_RECEIVED')) %}
+ <li class="st {{ 'done' if is_done else ('cur' if loop.index0 == cur else '') }}"{% if loop.index0 == cur %} aria-current="step"{% endif %}><i><svg viewBox="0 0 24 24" aria-hidden="true">{% if is_done %}<path class="chk" d="M6 12l4 4 8-8"/>{% elif loop.index0 == cur %}<circle class="dot" cx="12" cy="12" r="4"/>{% endif %}</svg></i><span>{{ label }}{% if loop.index0 == cur and v.req.request_status == 'DELAYED' %} (متأخر){% endif %}{% if loop.index0 == cur and v.req.request_status == 'RETURNED_FOR_MODIFICATION' %} (معاد للتعديل){% endif %}</span></li>
+ {% if not loop.last %}<li class="bar {{ 'done' if loop.index0 < cur else '' }}" aria-hidden="true"></li>{% endif %}
+{% endfor %}</ol></div>
+{% endif %}
+{% endmacro %}
+
+{% macro timeline(items) %}
+{% if items %}<ul class="timeline">{% for e in items %}
+<li><div class="ev">{{ e.event_description_ar }}</div><div class="when">{{ e.event_at|dt }}{% if e.actor_name %} — {{ e.actor_name }}{% endif %}</div></li>
+{% endfor %}</ul>{% else %}<div class="empty-sm">لا توجد أحداث متاحة.</div>{% endif %}
+{% endmacro %}
+
+{% macro docs(items, csrf) %}
+{% if items %}<div class="d-flex flex-column gap-2">{% for d in items %}
+<div class="doc">
+ <div class="d-flex gap-3 align-items-center"><span class="dic">{{ ico('doc') }}</span><div><strong>{{ d.document_title_ar }}</strong><div class="small text-muted">{{ d.document_type_ar }} — {{ d.document_status_ar }} — {{ d.visibility_ar }}</div></div></div>
+ <div class="acts">
+  {% if d.can.view %}<a class="btn btn-sm btn-primary" target="_blank" rel="noopener" href="/documents/{{ d.document_id }}/view">{{ ico('eye') }}عرض</a>{% endif %}
+  {% if d.can.download %}<a class="btn btn-sm btn-outline-primary" href="/documents/{{ d.document_id }}/download">{{ ico('download') }}تنزيل</a>{% endif %}
+  {% if d.can.print %}<a class="btn btn-sm btn-outline-primary" target="_blank" rel="noopener" href="/documents/{{ d.document_id }}/print">{{ ico('print') }}طباعة</a>{% endif %}
+ </div></div>{% endfor %}</div>
+{% else %}<div class="empty-sm">لا توجد مستندات متاحة لك.</div>{% endif %}
+{% endmacro %}
+
+{% macro delay(d) %}{% if d %}<div class="alert alert-warning mb-2 d-flex gap-2">{{ ico('clock') }}<div>تأخير مسجّل: <strong>{{ d.days }} يوم</strong> — السبب: {{ d.reason }}<div class="small">{{ d.note }}</div></div></div>{% endif %}{% endmacro %}
+
+{% macro note_list(items) %}
+{% if items %}<div>{% for n in items %}<div class="note-i {% if not n.is_read %}new{% endif %}"><span class="nd" aria-hidden="true"></span><div><strong>{{ n.notification_type_ar }}</strong>{% if not n.is_read %}<span class="visually-hidden"> (غير مقروء)</span>{% endif %}<div>{{ n.message_ar }}</div><div class="tm">{{ n.created_at|dt }}</div></div></div>{% endfor %}</div>
+{% else %}<div class="empty-sm">لا توجد إشعارات.</div>{% endif %}
+{% endmacro %}
+
+{% macro triage_panel(top) %}
+{% if top %}<section class="panel triage mb-4" aria-label="ابدأ من هنا"><div class="hd"><h2>{{ ico('flag') }}ابدأ من هنا — الأكثر عرضة للتأخير</h2><span class="small text-muted">ترتيب استرشادي، والقرار لك</span></div>
+<div class="bd">{% for r in top %}<div class="triage-row">
+ <div><span class="pill pill-{{ r.triage.level_class }}">{{ r.triage.level_ar }} · {{ r.triage.score }}</span> <strong class="tt ms-2">#{{ r.req.request_id }} {{ r.req.request_title_ar }}</strong><div class="small text-muted mt-1">{{ r.triage.text }}</div></div>
+ <a class="btn btn-sm btn-primary" href="/requests/{{ r.req.request_id }}">فتح الطلب{{ ico('arrow', cls='ic-svg ic-sm') }}</a></div>{% endfor %}</div></section>{% endif %}
+{% endmacro %}

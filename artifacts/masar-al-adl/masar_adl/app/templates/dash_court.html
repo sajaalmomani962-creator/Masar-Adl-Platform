@@ -1,0 +1,12 @@
+{% extends "base.html" %}{% from "_macros.html" import request_table, stat, triage_panel, ico %}
+{% block title %}لوحة المحكمة{% endblock %}
+{% block content %}
+{% set all = [] %}{% for label, items in sections %}{% for it in items %}{% if all.append(it) %}{% endif %}{% endfor %}{% endfor %}
+<div class="page-head"><div><div class="eyebrow">{{ ico('scale', cls='ic-svg ic-sm') }}{{ user.role_ar }}</div><h1 class="page-title">{{ title }}</h1><div class="sub">راجع الطلبات واعتمدها، وانشر ردود الجهات للمواطن بعد التحقق منها.</div></div></div>
+<div class="stats mb-4">
+ {{ stat(sections|length and sections|map(attribute=1)|map('length')|sum, 'إجمالي الطلبات', 'doc', 'ic-blue', '#0F5C80') }}
+ {% for label, items in sections %}{% if loop.index <= 3 %}{{ stat(items|length, label, ['clock','scale','check'][loop.index0], ['ic-amber','ic-purple','ic-green'][loop.index0], ['#8A5A00','#5B3FA0','#17684A'][loop.index0]) }}{% endif %}{% endfor %}
+</div>
+{{ triage_panel(top) }}
+{% for label, items in sections %}{% if items or loop.first %}<h2 class="section-title">{{ label }} <span class="count">({{ items|length }})</span></h2>{{ request_table(items) }}{% endif %}{% endfor %}
+{% endblock %}

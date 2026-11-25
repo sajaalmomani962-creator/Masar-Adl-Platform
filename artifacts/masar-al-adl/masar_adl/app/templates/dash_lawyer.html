@@ -1,0 +1,11 @@
+{% extends "base.html" %}{% from "_macros.html" import request_table, ico, empty %}
+{% block title %}لوحة المحامي{% endblock %}
+{% block content %}
+<div class="page-head"><div><div class="eyebrow">{{ ico('users', cls='ic-svg ic-sm') }}{{ user.role_ar }}</div><h1 class="page-title">لوحة المحامي</h1><div class="sub">قضاياك المسندة وطلبات الكتب التي قدمتها.</div></div><a class="btn btn-primary" href="/requests/new">{{ ico('plus') }}طلب كتاب جديد</a></div>
+<h2 class="section-title mt-0">{{ ico('folder') }}قضاياي <span class="count">{{ cases|length }}</span></h2>
+<div class="row g-3 mb-2 lawyer-cases">{% for c in cases %}<div class="col-md-6 col-xl-4"><div class="panel"><div class="bd case-card">
+ <div><span class="cn">{{ c.case_number }}</span> — {{ c.case_type_ar }}</div><div class="small text-muted">{{ c.court_name }} — {{ c.case_status_ar }}</div>
+ <a class="btn btn-sm btn-outline-primary mt-2" href="/cases/{{ c.case_id }}">عرض القضية</a></div></div></div>
+{% else %}<div class="col-12">{{ empty('لا توجد قضايا مسندة إليك.', 'folder') }}</div>{% endfor %}</div>
+<h2 class="section-title">{{ ico('doc') }}طلبات الكتب <span class="count">{{ rows|length }}</span></h2>{{ request_table(rows) }}
+{% endblock %}

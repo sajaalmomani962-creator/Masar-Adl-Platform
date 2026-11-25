@@ -1,0 +1,1 @@
+- [Preserve the supplied platform](preserve-platform.md) — retain the existing Python/Jinja application rather than replacing it to match the initial React scaffold.

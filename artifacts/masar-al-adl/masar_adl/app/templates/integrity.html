@@ -1,0 +1,28 @@
+{% extends "base.html" %}{% from "_macros.html" import ico %}{% block title %}مدقق سلامة المسار{% endblock %}
+{% block content %}
+<div class="page-head"><div><div class="eyebrow">{{ ico('shield', cls='ic-svg ic-sm') }}قواعد R1–R8</div><h1 class="page-title brand">مدقق سلامة المسار</h1>
+<p class="sub mb-0">يفحص المدقق الخط الزمني وسجل التدقيق وبيانات كل طلب بقواعد صريحة (R1–R8)، ويُظهر ما يستحق مراجعتك. هو <strong>تنبيه للمراجعة وليس حكمًا</strong>، ولا يغيّر أي بيانات.
+{% if user.role == 'COURT_CLERK' %} يعرض الكاتب نتائج القضايا التي تعامل معها فقط.{% endif %}</p></div></div>
+<div class="stats mb-4">
+ <div class="stat sev-stat high"><div class="ic ic-red">{{ ico('alert') }}</div><div><b>{{ counts.high }}</b><span>عالية الخطورة</span></div></div>
+ <div class="stat sev-stat medium"><div class="ic ic-amber">{{ ico('flag') }}</div><div><b>{{ counts.medium }}</b><span>متوسطة</span></div></div>
+ <div class="stat sev-stat low"><div class="ic ic-blue">{{ ico('info') }}</div><div><b>{{ counts.low }}</b><span>منخفضة</span></div></div>
+</div>
+<nav class="mb-3 d-flex flex-wrap gap-2" aria-label="تصفية حسب الخطورة">
+ <a class="chip {{ 'on' if not sev else '' }}" href="/integrity">الكل ({{ total }})</a>
+ <a class="chip {{ 'on' if sev=='high' else '' }}" href="/integrity?severity=high">عالية</a>
+ <a class="chip {{ 'on' if sev=='medium' else '' }}" href="/integrity?severity=medium">متوسطة</a>
+ <a class="chip {{ 'on' if sev=='low' else '' }}" href="/integrity?severity=low">منخفضة</a>
+</nav>
+{% for f in findings %}
+<div class="card p-3 mb-3 sev sev-{{ f.severity }}">
+ <div class="d-flex flex-wrap justify-content-between gap-2 align-items-start">
+  <div class="d-flex flex-wrap gap-2 align-items-center"><span class="pill pill-{{ f.severity_class }}">{{ f.severity_ar }}</span><span class="pill pill-mono" dir="ltr">{{ f.rule }}</span>
+   <strong>{{ f.title }}</strong></div>
+  {% if f.request_id %}<a class="btn btn-sm btn-outline-primary" href="/integrity/requests/{{ f.request_id }}">تقرير سلسلة الحفظ — طلب #{{ f.request_id }}</a>{% endif %}
+ </div>
+ <p class="mb-0 mt-2">{{ f.detail }}</p>
+</div>
+{% else %}<div class="alert alert-success d-flex gap-2">{{ ico('check') }}لا توجد ملاحظات ضمن هذا النطاق.</div>{% endfor %}
+<p class="small text-muted">قيد معروف: القواعد تكشف التناقضات الظاهرة فقط، وغياب الملاحظات لا يعني خلو المسار من الخطأ.</p>
+{% endblock %}

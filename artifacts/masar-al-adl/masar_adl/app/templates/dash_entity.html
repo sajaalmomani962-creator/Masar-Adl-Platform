@@ -1,0 +1,7 @@
+{% extends "base.html" %}{% from "_macros.html" import request_table, triage_panel, ico %}
+{% block title %}لوحة الجهة{% endblock %}
+{% block content %}
+<div class="page-head"><div><div class="eyebrow">{{ ico('inbox', cls='ic-svg ic-sm') }}{{ user.role_ar }}</div><h1 class="page-title">الكتب الواردة</h1><div class="sub">{{ entity.entity_name_ar }} — تظهر فقط الطلبات الموجهة إلى جهتك بعد إرسالها من المحكمة.</div></div></div>
+{{ triage_panel(top) }}
+{{ request_table(rows) }}
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends "base.html" %}{% from "_macros.html" import badge, stat, note_list, delay, timeline, ico, empty %}
+{% block title %}لوحة المواطن{% endblock %}
+{% block content %}
+{% set all = [] %}{% for sm in summaries %}{% for rv in sm.requests %}{% if all.append(rv) %}{% endif %}{% endfor %}{% endfor %}
+<div class="page-head"><div><div class="eyebrow">{{ ico('home', cls='ic-svg ic-sm') }}{{ user.role_ar }}</div><h1 class="page-title">مرحبًا، {{ user.display_name }}</h1><div class="sub">تابع حالة قضاياك والكتب المرتبطة بها من مكان واحد.</div></div></div>
+<div class="stats mb-4">
+ {{ stat(summaries|length, 'قضاياي', 'folder', 'ic-blue', '#0F5C80') }}
+ {{ stat(all|selectattr('req.request_status','in',['SENT_TO_ENTITY','UNDER_PROCESSING','DELAYED'])|list|length, 'قيد المعالجة', 'clock', 'ic-amber', '#8A5A00') }}
+ {{ stat(all|selectattr('req.request_status','equalto','RESPONSE_RECEIVED')|list|length, 'ردود جاهزة', 'check', 'ic-green', '#17684A') }}
+</div>
+<div class="row g-3 align-items-start">
+<div class="col-lg-8">
+{% for sm in summaries %}
+ <section class="panel mb-3">
+  <div class="hd"><div><h2>{{ ico('folder') }}ملخص متابعة القضية {{ sm.case.case_number }}</h2><div class="case-meta">{{ sm.case.court_name }} — {{ sm.case.case_type_ar }} — {{ sm.case.case_status_ar }}</div></div>
+   <a class="btn btn-sm btn-outline-primary" href="/cases/{{ sm.case.case_id }}">تفاصيل القضية</a></div>
+  <div class="bd"><p><strong>الملخص العام:</strong> {{ sm.public_summary }}</p>
+  {% for rv in sm.requests %}
+   <div class="req-item">
+    <div class="d-flex justify-content-between flex-wrap gap-2 align-items-center"><strong>{{ rv.req.request_title_ar }}</strong>{{ badge(rv) }}</div>
+    <div class="status-msg my-2">{{ rv.req.public_status_message_ar }}</div>{{ delay(rv.delay) }}
+    <details><summary>الخط الزمني</summary><div class="pt-3">{{ timeline(rv.timeline) }}</div></details>
+    <a class="trace-link" href="/requests/{{ rv.req.request_id }}">تتبّع المسار {{ ico('arrow', cls='ic-svg ic-sm') }}</a>
+   </div>
+  {% else %}<div class="empty-sm">لا توجد طلبات كتب على هذه القضية.</div>{% endfor %}
+  </div>
+ </section>
+{% else %}{{ empty('لا توجد قضايا مرتبطة بحسابك.', 'folder') }}{% endfor %}
+</div>
+<div class="col-lg-4"><aside class="panel"><div class="hd"><h2>{{ ico('bell') }}آخر الإشعارات</h2></div><div class="bd">{{ note_list(recent) }}<a href="/notifications" class="trace-link mt-2">كل الإشعارات {{ ico('arrow', cls='ic-svg ic-sm') }}</a></div></aside></div>
+</div>
+{% endblock %}

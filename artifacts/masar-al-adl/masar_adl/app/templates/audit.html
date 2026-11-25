@@ -1,0 +1,21 @@
+{% extends "base.html" %}{% from "_macros.html" import ico %}{% block title %}سجل التدقيق{% endblock %}
+{% block content %}
+<div class="page-head"><div><div class="eyebrow">{{ ico('lock', cls='ic-svg ic-sm') }}للقراءة فقط</div><h1 class="page-title brand">سجل التدقيق والمراقبة</h1>
+<p class="sub mb-0">للقراءة فقط. {% if user.role == 'COURT_CLERK' %}يعرض الكاتب السجلات المتعلقة بالقضايا التي تعامل معها فقط.{% else %}يعرض القاضي كل السجلات.{% endif %}</p></div></div>
+<form class="filters row g-2 mb-3" method="get" role="search" aria-label="تصفية السجل">
+ <div class="col-6 col-md-2"><label class="form-label small" for="f-from">من</label><input class="form-control" id="f-from" type="date" name="date_from" value="{{ f.date_from }}" aria-label="من"></div>
+ <div class="col-6 col-md-2"><label class="form-label small" for="f-to">إلى</label><input class="form-control" id="f-to" type="date" name="date_to" value="{{ f.date_to }}" aria-label="إلى"></div>
+ <div class="col-md-2"><label class="form-label small" for="f-act">الإجراء</label><input class="form-control" id="f-act" name="action" placeholder="الإجراء" value="{{ f.action }}" dir="ltr"></div>
+ <div class="col-md-2"><label class="form-label small" for="f-res">النتيجة</label><select class="form-select" id="f-res" name="result"><option value="">كل النتائج</option><option value="SUCCESS" {% if f.result=='SUCCESS' %}selected{% endif %}>نجاح</option><option value="FAILURE" {% if f.result=='FAILURE' %}selected{% endif %}>فشل</option></select></div>
+ <div class="col-md-2"><label class="form-label small" for="f-actor">الفاعل</label><select class="form-select" id="f-actor" name="actor"><option value="">كل الفاعلين</option>{% for u in users %}<option value="{{ u.user_id }}" {% if f.actor==u.user_id|string %}selected{% endif %}>{{ u.display_name }}</option>{% endfor %}</select></div>
+ <div class="col-6 col-md-1"><label class="form-label small" for="f-case">قضية</label><input class="form-control" id="f-case" name="case" placeholder="قضية #" value="{{ f.case }}"></div>
+ <div class="col-6 col-md-1"><label class="form-label small" for="f-req">طلب</label><input class="form-control" id="f-req" name="request" placeholder="طلب #" value="{{ f.request }}"></div>
+ <div class="col-12 d-flex gap-2"><button class="btn btn-primary btn-sm">{{ ico('filter') }}تصفية</button> <a class="btn btn-link btn-sm" href="/audit">مسح</a><span class="ms-auto small text-muted align-self-center">{{ rows|length }} سجل</span></div>
+</form>
+<div class="table-card"><div class="table-responsive"><table class="table table-sm table-hover"><thead><tr><th>الوقت</th><th>الفاعل</th><th>القضية</th><th>الطلب</th><th>الإجراء</th><th>النتيجة</th><th>التفاصيل</th></tr></thead><tbody>
+{% for r in rows %}<tr><td class="td-nowrap">{{ r.action_at|dt }}</td><td>{{ r.actor_name }}</td><td class="td-nowrap">{{ r.case_number }}</td><td class="num">{{ r.request_id or '—' }}</td><td dir="ltr" class="td-mono">{{ r.action_code }}</td>
+<td><span class="pill pill-{{ 'success' if r.result=='SUCCESS' else 'danger' }}">{{ 'نجاح' if r.result=='SUCCESS' else 'فشل' }}</span></td><td>{{ r.details }}</td></tr>
+{% else %}<tr><td colspan="7" class="text-muted text-center py-4">لا توجد سجلات مطابقة.</td></tr>{% endfor %}
+</tbody></table></div></div>
+<p class="small text-muted mt-3">قيد معروف: الأحداث التي لا تحمل مستخدمًا وقضية (مثل فشل الدخول) لا يتسع لها جدول audit_logs، وتُسجَّل في سجل التطبيق.</p>
+{% endblock %}

@@ -1,0 +1,55 @@
+{% extends "base.html" %}{% from "_macros.html" import badge, timeline, docs, delay, stepper, ico %}
+{% block title %}تفاصيل الطلب{% endblock %}
+{% block content %}
+{% set r = v.req %}
+<nav class="crumbs" aria-label="مسار التنقل"><a href="{{ ROLE_HOME[user.role] }}">لوحتي</a><span class="sep">‹</span><a href="/cases/{{ case.case_id }}">{{ case.case_number }}</a><span class="sep">‹</span><strong>طلب #{{ r.request_id }}</strong></nav>
+<div class="panel mb-3"><div class="bd d-flex flex-wrap justify-content-between align-items-center gap-3">
+ <div><div class="d-flex flex-wrap align-items-center gap-3 mb-1"><h1 class="page-title mb-0">{{ r.request_title_ar }}</h1>{{ badge(v) }}</div><div class="sub">إلى: {{ v.entity_name }} · القضية {{ case.case_number }} · {{ case.court_name }}</div></div>
+ {% if user.role in ('COURT_CLERK','COURT_JUDGE') %}<a class="btn btn-sm btn-outline-primary no-print" href="/integrity/requests/{{ r.request_id }}">{{ ico('shield') }}تقرير سلسلة الحفظ</a>{% endif %}
+</div><div class="bd border-top">{{ stepper(v) }}</div></div>
+<div class="row g-3">
+<div class="col-lg-7">
+ <div class="card mb-3"><div class="card-body">
+  <div class="status-msg mb-3">{{ r.public_status_message_ar }}</div>{{ delay(v.delay) }}
+  <dl class="kv">
+   <dt>القضية</dt><dd>{{ case.case_number }} — {{ case.court_name }}</dd>
+   <dt>الجهة المستهدفة</dt><dd>{{ v.entity_name }}</dd>
+   <dt>نوع الطلب</dt><dd><span class="ltr td-mono" dir="ltr">{{ r.request_type }}</span></dd>
+   {% if user.role not in ENTITY_ROLES %}<dt>تاريخ التقديم</dt><dd class="td-nowrap">{{ r.submitted_at|dt }}</dd>
+   <dt>قرار المحكمة</dt><dd class="td-nowrap">{{ r.court_decision_at|dt }}</dd>{% endif %}
+   <dt>الإرسال للجهة</dt><dd class="td-nowrap">{{ r.sent_to_entity_at|dt }}</dd>
+   <dt>استلام الرد</dt><dd class="td-nowrap">{{ r.response_received_at|dt }}</dd>
+   {% if user.role in COURT_ROLES %}<dt>ملاحظة داخلية</dt><dd class="pre-line">{{ r.internal_note or '—' }}</dd>{% endif %}
+  </dl></div></div>
+ <div class="card mb-3"><div class="card-body"><h2 class="panel-title">{{ ico('doc') }}المستندات</h2>{{ docs(v.documents, csrf) }}</div></div>
+ <div class="card"><div class="card-body"><h2 class="panel-title">{{ ico('clock') }}سجل المسار</h2>{{ timeline(v.timeline) }}</div></div>
+</div>
+<div class="col-lg-5 no-print">
+{% if actions %}
+<div class="card mb-3"><div class="card-body"><h2 class="panel-title">{{ ico('send') }}الإجراءات المتاحة</h2>
+ {% for a in actions %}
+  {% if a == 'note' %}
+   <form method="post" action="/requests/{{ r.request_id }}/action" class="action-form" data-once><input type="hidden" name="csrf" value="{{ csrf }}"><input type="hidden" name="action" value="note">
+    <label class="form-label" for="note-f">ملاحظة داخلية (للمحكمة فقط)</label><textarea class="form-control" id="note-f" name="note" rows="2" maxlength="1000">{{ r.internal_note or '' }}</textarea>
+    <button class="btn btn-sm btn-outline-secondary mt-2">{{ ico('lock') }}حفظ الملاحظة</button></form>
+  {% else %}
+   <form method="post" action="/requests/{{ r.request_id }}/action" enctype="multipart/form-data" class="action-form" data-confirm="تأكيد: {{ ACTIONS[a].label }}؟" data-once>
+    <input type="hidden" name="csrf" value="{{ csrf }}"><input type="hidden" name="action" value="{{ a }}">
+    {% if ACTIONS[a].needs_reason %}<label class="form-label visually-hidden" for="reason-{{ a }}">السبب</label><input class="form-control form-control-sm mb-1" id="reason-{{ a }}" name="reason" placeholder="السبب (مطلوب)" required maxlength="200"><div class="form-hint mb-2">{{ ico('lock', cls='ic-svg ic-sm') }} يُحفظ للمحكمة ولا يظهر للمواطن.</div>{% endif %}
+    {% if ACTIONS[a].needs_delay %}<div class="row g-2 mb-2"><div class="col-4"><input class="form-control form-control-sm" type="number" min="1" max="365" name="delay_days" placeholder="أيام" aria-label="أيام التأخير" required></div>
+     <div class="col-8"><select class="form-select form-select-sm" name="delay_reason_code" aria-label="سبب التأخير">{% for k, lbl in DELAY_REASONS.items() %}<option value="{{ k }}">{{ lbl }}</option>{% endfor %}</select></div></div>{% endif %}
+    {% if ACTIONS[a].needs_upload %}<input class="form-control form-control-sm mb-2" type="file" name="file" accept="application/pdf,.pdf" aria-label="ملف PDF" required>{% endif %}
+    <button class="btn btn-sm btn-primary w-100">{{ ACTIONS[a].label }}</button>
+   </form>
+  {% endif %}
+ {% endfor %}
+ {% if user.role == 'COURT_CLERK' and r.request_status == 'UNDER_COURT_REVIEW' %}<div class="hint-line">{{ ico('info', cls='ic-svg ic-sm') }}الموافقة أو الرفض قرار قضائي يخص القاضي المخوّل.</div>{% endif %}
+</div></div>
+{% endif %}
+{% if user.role == 'LAWYER' and r.request_status in ('DRAFT', 'RETURNED_FOR_MODIFICATION') %}
+<div class="card"><div class="card-body"><h2 class="panel-title">{{ ico('upload') }}ملف الطلب (PDF)</h2>
+ <form method="post" action="/requests/{{ r.request_id }}/pdf" enctype="multipart/form-data" data-confirm="رفع الملف سيستبدل أي ملف سابق. متابعة؟"><input type="hidden" name="csrf" value="{{ csrf }}">
+  <input class="form-control mb-2" type="file" name="file" accept="application/pdf,.pdf" aria-label="ملف PDF" required><button class="btn btn-sm btn-outline-primary">رفع / استبدال الملف</button></form></div></div>
+{% endif %}
+</div></div>
+{% endblock %}

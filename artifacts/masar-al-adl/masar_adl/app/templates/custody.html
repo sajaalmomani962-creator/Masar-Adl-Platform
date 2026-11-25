@@ -1,0 +1,17 @@
+{% extends "base.html" %}{% from "_macros.html" import ico %}{% block title %}تقرير سلسلة الحفظ{% endblock %}
+{% block content %}
+<div class="print-head"><strong>مسار العدل — تقرير سلسلة الحفظ — طلب #{{ req.request_id }}</strong><div class="small">نموذج أولي للعرض — ليس وثيقة رسمية.</div></div>
+<div class="page-head no-print">
+ <div><div class="eyebrow">{{ ico('shield', cls='ic-svg ic-sm') }}مدقق سلامة المسار</div><h1 class="page-title brand mb-0">تقرير سلسلة الحفظ — طلب #{{ req.request_id }}</h1></div>
+ <div class="d-flex gap-2"><a class="btn btn-outline-primary btn-sm" href="/integrity">رجوع للمدقق</a><button type="button" class="btn btn-primary btn-sm" data-print>{{ ico('print') }}طباعة التقرير</button></div>
+</div>
+<p class="text-muted">{{ req.request_title_ar }} — القضية {{ case.case_number }}. قصة واحدة مرتبة زمنيًا من الخط الزمني وسجل التدقيق والمستندات. للقراءة فقط.</p>
+<h2 class="section-title">ملاحظات المدقق <span class="count">({{ findings|length }})</span></h2>
+{% for f in findings %}<div class="alert alert-{{ f.severity_class }} py-2"><strong>{{ f.rule }} · {{ f.severity_ar }} · {{ f.title }}:</strong> {{ f.detail }}</div>
+{% else %}<div class="alert alert-success py-2">لا توجد ملاحظات على هذا الطلب.</div>{% endfor %}
+<h2 class="section-title">التسلسل الزمني</h2>
+<div class="table-card"><div class="table-responsive"><table class="table table-sm"><thead><tr><th>الوقت</th><th>النوع</th><th>الوصف</th><th>الفاعل</th></tr></thead><tbody>
+{% for r in rows %}<tr><td class="td-nowrap">{{ r.at|dt }}</td><td>{{ r.kind }}</td><td>{{ r.text }}</td><td>{{ r.who or '—' }}</td></tr>{% endfor %}
+</tbody></table></div></div>
+<p class="small text-muted mt-3">هذا التقرير للمراجعة الداخلية ولا يُعد قرارًا ولا رأيًا قانونيًا.</p>
+{% endblock %}

@@ -1,0 +1,23 @@
+kind = "web"
+previewPath = "/"
+title = "مسار العدل"
+description = "Arabic judicial correspondence prototype preserving the supplied Python application, role-based workflows, private PDF documents, integrity reports, and explainable triage."
+version = "1.0.0"
+id = "artifacts/masar-al-adl"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 22239
+
+[services.development]
+run = "pnpm --filter @workspace/masar-al-adl run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/masar-al-adl", "run", "build" ]
+run = "pnpm --filter @workspace/masar-al-adl run serve"
+
+[services.env]
+PORT = "22239"
+BASE_PATH = "/"

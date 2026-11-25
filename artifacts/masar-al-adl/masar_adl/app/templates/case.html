@@ -1,0 +1,33 @@
+{% extends "base.html" %}{% from "_macros.html" import badge, timeline, docs, delay, note_list, ico %}
+{% block title %}القضية{% endblock %}
+{% block content %}
+{% set c = summary.case %}
+<nav class="crumbs" aria-label="مسار التنقل"><a href="{{ ROLE_HOME[user.role] }}">لوحتي</a><span class="sep">‹</span><strong>{{ c.case_number }}</strong></nav>
+<div class="page-head"><div><div class="eyebrow">{{ ico('folder', cls='ic-svg ic-sm') }}{{ c.court_name }}</div><h1 class="page-title brand">القضية {{ c.case_number }}</h1></div></div>
+<div class="row g-3 mb-3">
+<div class="col-lg-8"><div class="card h-100"><div class="card-body">
+ <dl class="kv">
+  <dt>المحكمة</dt><dd>{{ c.court_name }} ({{ c.court_location_ar }})</dd>
+  <dt>نوع القضية</dt><dd>{{ c.case_type_ar }} — {{ c.registry_type_ar }}</dd>
+  <dt>الحالة</dt><dd>{{ c.case_status_ar }}</dd>
+  <dt>تاريخ الفتح</dt><dd>{{ c.opened_date|d }}</dd>
+  <dt>الملخص العام</dt><dd>{{ summary.public_summary }}</dd>
+  <dt>الجلسة الأخيرة</dt><dd>غير متاحة</dd>
+ </dl></div></div></div>
+<div class="col-lg-4"><div class="card h-100"><div class="card-body"><h2 class="panel-title">{{ ico('users') }}الأطراف</h2>
+ {% for p in parties %}<div class="party"><span class="pa" aria-hidden="true">{{ p.party_name_ar[:1] }}</span><div><strong>{{ p.party_name_ar }}</strong><div class="small text-muted">{{ p.party_role_ar }}</div></div></div>{% else %}<div class="empty-sm">—</div>{% endfor %}</div></div></div>
+</div>
+<h2 class="section-title">{{ ico('doc') }}طلبات الكتب</h2>
+{% for rv in summary.requests %}
+<div class="card mb-3"><div class="card-body">
+ <div class="d-flex justify-content-between flex-wrap gap-2 align-items-center"><strong>{{ rv.req.request_title_ar }}</strong>{{ badge(rv) }}</div>
+ <div class="status-msg my-2">{{ rv.req.public_status_message_ar }}</div>{{ delay(rv.delay) }}
+ <div class="row g-3 mt-1">
+  <div class="col-lg-6"><h3 class="h6">الخط الزمني</h3>{{ timeline(rv.timeline) }}</div>
+  <div class="col-lg-6"><h3 class="h6">المستندات</h3>{{ docs(rv.documents, csrf) }}</div>
+ </div>
+ <a class="btn btn-sm btn-outline-primary mt-3" href="/requests/{{ rv.req.request_id }}">تفاصيل الطلب</a>
+</div></div>
+{% else %}<div class="empty-sm mb-3">لا توجد طلبات.</div>{% endfor %}
+<section class="panel"><div class="hd"><h2>{{ ico('bell') }}إشعارات هذه القضية</h2></div><div class="bd">{{ note_list(summary.notifications) }}</div></section>
+{% endblock %}

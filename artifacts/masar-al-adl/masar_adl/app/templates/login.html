@@ -1,0 +1,37 @@
+{% extends "base.html" %}{% from "_macros.html" import ico, mark %}{% block title %}تسجيل الدخول{% endblock %}
+{% block body %}
+<main class="login" id="main">
+ <div class="side">
+  <div class="brandline">{{ mark('mark mark-lg') }}
+   <div><div class="brandname">مسار العدل</div><div class="brandtag">منصة تتبع الكتب القضائية والرسمية</div></div></div>
+  <div>
+   <h1>كل كتاب قضائي، بمساره الكامل وبشفافية تامة</h1>
+   <p class="lede">من تقديم الطلب في المحكمة إلى وصول رد الجهة الحكومية، تتابع كل خطوة وأنت تعلم من اطّلع ومتى.</p>
+   <ul class="trust"><li><span class="tk">{{ ico('lock') }}</span>صلاحيات مضبوطة لكل دور</li><li><span class="tk">{{ ico('list') }}</span>سجل تدقيق لكل فتح أو طباعة</li><li><span class="tk">{{ ico('scale') }}</span>ردود الجهات تُراجَع من المحكمة قبل وصولك</li></ul>
+  </div>
+  <p class="fine mb-0">نموذج أولي للعرض — ليس نظامًا رسميًا ولا يرتبط بأي جهة رسمية. المعلومات المعروضة للمتابعة وليست رأيًا قانونيًا.</p>
+ </div>
+ <div class="main"><div class="box">
+  <h2 class="brand mb-1">تسجيل الدخول</h2>
+  <p class="sub mb-3">أدخل الرقم الوطني وكلمة السر للمتابعة.</p>
+  {% if error %}<div class="alert alert-danger">{{ error }}</div>{% endif %}
+  {% if demo and demo_users and show_quick %}
+  <div class="row g-2 mb-1">
+   {% for u in demo_users %}
+   <div class="col-sm-6"><form method="post" action="/demo-login"><input type="hidden" name="login_token" value="{{ login_token }}"><input type="hidden" name="username" value="{{ u.username }}">
+    <button class="role"><span class="ra" aria-hidden="true">{{ u.display_name[:1] }}</span><span><strong>{{ u.role_ar }}</strong><span class="rn">{{ u.display_name }}</span><span class="rid" dir="ltr">{{ u.national_id }}</span></span></button></form></div>
+   {% endfor %}
+  </div>
+  <div class="or">أو</div>
+  {% endif %}
+  <form method="post" action="/login" autocomplete="off">
+   <input type="hidden" name="login_token" value="{{ login_token }}">
+   <div class="mb-3"><label class="form-label" for="national_id">الرقم الوطني</label><input class="form-control" id="national_id" name="national_id" required maxlength="30" dir="ltr" inputmode="text"></div>
+   <div class="mb-3"><label class="form-label" for="password">كلمة السر</label><input class="form-control" id="password" name="password" type="password" required maxlength="100" dir="ltr" autocomplete="off"></div>
+   {% if demo_hint and show_quick %}<div class="alert alert-warning py-2 small">بيانات تجريبية (TEST/DEMO): الرقم الوطني من قائمة الحسابات أعلاه، وكلمة السر التجريبية <span dir="ltr"><code>Demo@</code> + آخر 4 أرقام من الرقم الوطني</span>. لا تُستخدم إلا في وضع العرض.</div>{% endif %}
+   <button class="btn btn-primary w-100 btn-lg-cta">دخول</button>
+  </form>
+  <div class="secure">{{ ico('shield') }}جلسة محمية — يُسجَّل كل دخول في سجل التطبيق.</div>
+ </div></div>
+</main>
+{% endblock %}

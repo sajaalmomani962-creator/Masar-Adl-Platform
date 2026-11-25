@@ -1,0 +1,46 @@
+{% from "_macros.html" import ico, mark %}<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0B3C5D">
+  <meta name="description" content="مسار العدل — نموذج أولي عربي لتتبع الكتب القضائية والرسمية، بصلاحيات مضبوطة وسجل مسار واضح. ليس نظامًا رسميًا ولا رأيًا قانونيًا.">
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+  <title>{% block title %}مسار العدل{% endblock %} — نموذج أولي</title>
+  <link href="/static/vendor/bootstrap/bootstrap.rtl.min.css" rel="stylesheet">
+  <link href="/static/style.css?v=9" rel="stylesheet">
+</head>
+<body>
+<a class="skip no-print" href="#main">انتقل إلى المحتوى</a>
+{% if demo %}<div class="demo-banner no-print" role="status"><div class="in">{{ ico('alert', cls='ic-svg ic-sm') }}<span><b>وضع تجريبي</b> — البيانات ليست من قاعدة البيانات الحية (نموذج أولي، لا يرتبط بأي جهة رسمية)</span></div></div>{% endif %}
+{% set path = request.url.path %}
+<header class="topbar no-print" id="topbar"><div class="in">
+  <a class="logo" href="/" aria-label="مسار العدل — الرئيسية">{{ mark() }}<span class="t">مسار العدل<small>نموذج أولي للتتبع</small></span></a>
+  {% if user %}
+  <a class="bell ms-auto d-lg-none" href="/notifications" aria-label="الإشعارات{% if unread %}، {{ unread }} غير مقروءة{% endif %}">{{ ico('bell') }}{% if unread %}<span class="n">{{ unread }}</span>{% endif %}</a>
+  <button class="menu-btn" id="menu-btn" type="button" aria-expanded="false" aria-controls="topnav" aria-label="القائمة"><svg class="ic-svg b" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><svg class="ic-svg x" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  <nav class="topnav collapsible" id="topnav" aria-label="التنقل الرئيسي">
+    <a href="{{ ROLE_HOME[user.role] }}" class="{{ 'on' if path == ROLE_HOME[user.role] else '' }}"{% if path == ROLE_HOME[user.role] %} aria-current="page"{% endif %}>{{ ico('home') }}لوحتي</a>
+    {% if user.role == 'LAWYER' %}<a href="/requests/new" class="{{ 'on' if path == '/requests/new' else '' }}"{% if path == '/requests/new' %} aria-current="page"{% endif %}>{{ ico('plus') }}طلب كتاب جديد</a>{% endif %}
+    <a href="/notifications" class="{{ 'on' if path.startswith('/notifications') else '' }}"{% if path.startswith('/notifications') %} aria-current="page"{% endif %}>{{ ico('bell') }}الإشعارات</a>
+    {% if user.role in COURT_ROLES %}<a href="/audit" class="{{ 'on' if path.startswith('/audit') else '' }}"{% if path.startswith('/audit') %} aria-current="page"{% endif %}>{{ ico('list') }}سجل التدقيق</a>
+    <a href="/integrity" class="{{ 'on' if path.startswith('/integrity') else '' }}"{% if path.startswith('/integrity') %} aria-current="page"{% endif %}>{{ ico('shield') }}مدقق سلامة المسار</a>{% endif %}
+  </nav>
+  <div class="tools collapsible">
+   <a class="bell d-none d-lg-flex" href="/notifications" aria-label="الإشعارات{% if unread %}، {{ unread }} غير مقروءة{% endif %}">{{ ico('bell') }}{% if unread %}<span class="n">{{ unread }}</span>{% endif %}</a>
+   <div class="who"><div class="av" aria-hidden="true">{{ user.display_name[:1] }}</div><div class="txt"><div class="nm">{{ user.display_name }}</div><div class="rl">{{ user.role_ar }}{% if demo %} · حساب تجريبي{% endif %}</div></div></div>
+   {% if demo %}<form method="post" action="/demo/reset" data-confirm="إعادة ضبط بيانات العرض؟ ستُحذف كل التغييرات التي أجريتها في هذه الجلسة التجريبية."><input type="hidden" name="csrf" value="{{ csrf }}"><button class="btn btn-sm btn-ghost-light">{{ ico('reset') }}إعادة ضبط العرض</button></form>{% endif %}
+   <form method="post" action="/logout"><input type="hidden" name="csrf" value="{{ csrf }}"><button class="btn btn-sm btn-solid-light">{{ ico('logout') }}خروج</button></form>
+  </div>
+  {% endif %}
+</div></header>
+{% block body %}
+<main class="page" id="main">
+  {% for kind, msg in flashes %}<div class="alert alert-{{ kind }} flash" role="alert">{{ ico('check' if kind == 'success' else 'alert', cls='ic-svg') }}<div>{{ msg }}</div></div>{% endfor %}
+  {% block content %}{% endblock %}
+</main>
+<footer class="foot no-print"><div class="in">{{ ico('info', cls='ic-svg ic-sm') }}<span>الإصدار 9 · التصميم الحكومي + مدقق سلامة المسار — نموذج أولي للعرض — ليس نظامًا رسميًا ولا جاهزًا للإنتاج. هذا الملخص للمتابعة وليس رأيًا قانونيًا.</span></div></footer>
+{% endblock %}
+<script src="/static/vendor/bootstrap/bootstrap.bundle.min.js"></script>
+<script src="/static/app.js?v=9"></script>
+</body></html>
