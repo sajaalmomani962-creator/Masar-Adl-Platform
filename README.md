@@ -23,6 +23,15 @@ Jordanian government systems, does not file court cases, and provides no legal a
 - Explainable priority scores, scoped to authorized requests; advisory only.
 - Demo reset to the exact supplied seed, without adding or changing seed rows.
 
+### Submission package (`submission-package/`)
+The `submission-package/` folder groups the evaluation materials and SQL reference files for the jury:
+- `Masar_Al_Adl_Prototype_With_Login_Guide_AR.pdf`: Arabic jury walkthrough, problem-and-solution overview, advisory AI boundaries, and TEST login guide.
+- `Masar_Al_Adl_Technical_Architecture_Doc.pdf`: Updated technical and architecture document covering the four-layer design, `RBAC + ABAC`, smart triage (0–100), R1–R8 path integrity / chain-of-custody, database tables, and diagram placeholders.
+- `WhatsApp Video 2026-11-26 at 3.31.04 PM.mp4`: Prototype walkthrough video (`Masar Al-Adl` demo walkthrough) for demonstration purposes.
+- `judicial_exchange_sqlserver.sql` and `judicial_exchange_seed_data.sql`: Original SQL Server schema and seed reference files (kept unchanged and never executed automatically).
+
+> **Note:** Prototype for demonstration and evaluation only; not an official government system, not production-ready, and not legal advice.
+
 ## Technology and source layout
 
 The supplied Python application is preserved rather than rewritten. The web
