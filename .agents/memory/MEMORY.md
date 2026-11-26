@@ -2,3 +2,4 @@
 - [Browser PDF verification limits](browser-pdf-verification.md) — distinguish PDF delivery from rendering and physical printing; preserve strict upload validation and document permissions.
 - [Demo verification boundary](verification-policy.md) — unavailable live SQL access does not block demo work; clearly separate mock results from real-database checks.
 - [Python storage SDK bucket selection](python-storage-bucket.md) — provisioning did not make SDK default discovery work; select the intended bucket explicitly.
+- [Competition challenge scope](challenge-scope.md) — the product addresses judicial digital transformation, domain 02/problem 06: slow inter-agency exchange of information and documents.

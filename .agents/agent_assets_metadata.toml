@@ -56,3 +56,31 @@ mtime_ms = 1795677982726
 storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:1bf81b07-135c-4f07-a84d-c5ca7be55d4b/61f5d084-be98-4668-973c-be96a293e4a5/d72a6658-8553-46e1-8454-a493a5b0a22d"
 storage_version_token = "1795678172054796"
 content_type = "text/markdown"
+
+[[outputs]]
+id = "KUk6IzPK9r6MG8Gruobpr"
+uri = "file://generated-artifacts/committee/Masar_Al_Adl_Prototype_AR.pdf"
+type = "pdf"
+title = "مسار العدل — ملف النموذج الأولي للجنة التحكيم"
+description = "PDF عربي من 7 صفحات: المشكلة 06 ضمن المجال 02، الحل المنفّذ، رحلة الاستخدام، المزايا والأمان، الأتمتة الذكية الحالية وفرص AI المستقبلية، مع لقطة فعلية من الموقع."
+logical_id = "b8495acb-201c-452c-8167-06adc166dee3"
+content_hash = "sha256:30baf5268d5f0ee3ce08fe073ec2554f5fd99085c9b0d77ebbb4aa5f143e5795"
+size = 174681
+mtime_ms = 1795683029038
+storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:1bf81b07-135c-4f07-a84d-c5ca7be55d4b/b8495acb-201c-452c-8167-06adc166dee3/1cb360b6-ab3b-4908-9ae3-967bb70bfa9d"
+storage_version_token = "1795683072725650"
+content_type = "application/pdf"
+
+[[outputs]]
+id = "KbgD7ZDJS9X-LTayoHuLB"
+uri = "file://generated-artifacts/committee/Masar_Al_Adl_Prototype_AR_Editable.docx"
+type = "word_document"
+title = "نسخة Word نصية قابلة للتعديل"
+description = "محتوى الملف بالعربية للتعديل وإضافة أسماء الفريق وبيانات المسابقة. نسخة PDF هي النسخة المنسّقة التي تتضمن لقطة الموقع."
+logical_id = "5fb9510d-d92f-4d79-92d3-658f153d8127"
+content_hash = "sha256:e7f958659a7f7ab9e8c7d29131ea9c1f720c0ce1ea0be5ed05bbff5eef78241b"
+size = 6188
+mtime_ms = 1795683029042
+storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:1bf81b07-135c-4f07-a84d-c5ca7be55d4b/5fb9510d-d92f-4d79-92d3-658f153d8127/8b320f8a-bd3d-49a6-8a99-55f6a8e0b75c"
+storage_version_token = "1795683074120629"
+content_type = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
