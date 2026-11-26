@@ -84,3 +84,31 @@ mtime_ms = 1795683029042
 storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:1bf81b07-135c-4f07-a84d-c5ca7be55d4b/5fb9510d-d92f-4d79-92d3-658f153d8127/8b320f8a-bd3d-49a6-8a99-55f6a8e0b75c"
 storage_version_token = "1795683074120629"
 content_type = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+
+[[outputs]]
+id = "lXIV9Yl47E50wW5rcmIoG"
+uri = "file://generated-artifacts/committee/Masar_Al_Adl_Prototype_With_Login_Guide_AR.pdf"
+type = "pdf"
+title = "النسخة المحدّثة للجنة — مع دليل الدخول"
+description = "PDF من 8 صفحات، يتضمن خطوات الدخول بالرقم الوطني وكلمة المرور، ومثال TEST-NID-9902002001 مع Demo@2001، وجدول 10 حسابات TEST بحسب الأدوار."
+logical_id = "7cf7146d-3338-450b-b277-2445c28e3ff2"
+content_hash = "sha256:1152289eb2774bf571ccfd74f3c4f3a38670393c4eb5647b094b798ab9252ba8"
+size = 177957
+mtime_ms = 1795684350294
+storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:1bf81b07-135c-4f07-a84d-c5ca7be55d4b/7cf7146d-3338-450b-b277-2445c28e3ff2/4024345e-0175-42c2-972f-17ad6fda34fe"
+storage_version_token = "1795684391112642"
+content_type = "application/pdf"
+
+[[outputs]]
+id = "5Q4fadSzZzYbxP58yU3Ck"
+uri = "file://generated-artifacts/committee/Masar_Al_Adl_Prototype_With_Login_Guide_AR_Editable.docx"
+type = "word_document"
+title = "Word المحدّث — مع دليل الدخول والحسابات"
+description = "نسخة نصية قابلة للتعديل تشمل دليل الدخول، وقاعدة كلمة المرور، وجدول الحسابات التجريبية. استخدمي هذه النسخة بدل نسخة Word السابقة."
+logical_id = "842c54b5-9218-44e2-a8fb-bee5ad092b5f"
+content_hash = "sha256:ac34ea299a0a3db1247aed010e9b1fe267978bf16bad46e1b6b61a976afddea9"
+size = 7278
+mtime_ms = 1795684350301
+storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:1bf81b07-135c-4f07-a84d-c5ca7be55d4b/842c54b5-9218-44e2-a8fb-bee5ad092b5f/35116c5e-3940-4eed-b565-8059874c1e0a"
+storage_version_token = "1795684392497748"
+content_type = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
