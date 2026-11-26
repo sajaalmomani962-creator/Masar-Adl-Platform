@@ -2,7 +2,7 @@ modules = ["nodejs-24", "python-3.12"]
 
 [deployment]
 router = "application"
-deploymentTarget = "autoscale"
+deploymentTarget = "vm"
 
 [deployment.postBuild]
 args = ["pnpm", "store", "prune"]
@@ -63,3 +63,9 @@ packages = ["freetype", "glibcLocales"]
 [userenv.development]
 MASAR_PDF_BUCKET_ID = "replit-objstore-3a3e9c88-9320-4bc8-b819-15bdeede409f"
 PDF_STORAGE_BACKEND = "app_storage"
+
+[userenv.production]
+DATA_MODE = "demo"
+MASAR_PDF_BUCKET_ID = "replit-objstore-3a3e9c88-9320-4bc8-b819-15bdeede409f"
+PDF_STORAGE_BACKEND = "app_storage"
+SECURE_COOKIES = "true"

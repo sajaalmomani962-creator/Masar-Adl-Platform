@@ -28,3 +28,31 @@ mtime_ms = 1795642851749
 storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:1bf81b07-135c-4f07-a84d-c5ca7be55d4b/82d04191-9dd1-4da2-aacd-2b0263f5cd40/f071c8a5-04ab-46c7-b69d-3efea5ffb16c"
 storage_version_token = "1795643029696727"
 content_type = "text/markdown"
+
+[[outputs]]
+id = "TFAcX1R0oqSfXPVSWDIh5"
+uri = "file://generated-artifacts/submission/masar-al-adl-competition.zip"
+type = "unspecified"
+title = "حزمة الكود الجاهزة لتسليم المسابقة"
+description = "حزمة مصدر بحجم 1.5 MB؛ فُك ضغطها ونجحت فيها 178 حالة Python وفحص دخول 10 حسابات TEST ومسارات PDF. لا تشمل الملفات المرفوعة أو السجلات أو أسرار البيئة."
+logical_id = "9b922c02-effe-49f3-ba52-33490ac424f6"
+content_hash = "sha256:e06632884bb90f0ee3d4b620c95e6411bdad35eaa700fe9eb2d90aeb72cef730"
+size = 1521305
+mtime_ms = 1795677992364
+storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:1bf81b07-135c-4f07-a84d-c5ca7be55d4b/9b922c02-effe-49f3-ba52-33490ac424f6/9ba128db-4e12-4785-80b1-c443603f106b"
+storage_version_token = "1795678170761393"
+content_type = "application/octet-stream"
+
+[[outputs]]
+id = "5OV-uNB_UVLCMBh31lQVS"
+uri = "file://COMPETITION_GUIDE_AR.md"
+type = "text"
+title = "دليل لجنة التحكيم والتشغيل والنشر"
+description = "خطوات العرض والحسابات التجريبية وتشغيل الكود، مع توضيح خطوة النشر المتبقية وحدود البيانات المؤقتة."
+logical_id = "61f5d084-be98-4668-973c-be96a293e4a5"
+content_hash = "sha256:1ce72574d802895a47d28d14091b6cb4bf3110e73d9c162c61744db03d8663b6"
+size = 8257
+mtime_ms = 1795677982726
+storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:1bf81b07-135c-4f07-a84d-c5ca7be55d4b/61f5d084-be98-4668-973c-be96a293e4a5/d72a6658-8553-46e1-8454-a493a5b0a22d"
+storage_version_token = "1795678172054796"
+content_type = "text/markdown"

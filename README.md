@@ -53,6 +53,22 @@ artifacts/masar-al-adl/
     DEMO_GUIDE.md                       Presenter steps and TEST account list
 ```
 
+## Competition handover
+
+See [دليل المسابقة والتحكيم](COMPETITION_GUIDE_AR.md) for the judge walkthrough,
+portable Python startup, publication checklist and explicit demo limitations.
+Build and check a source-only archive with:
+
+```bash
+python scripts/package_competition.py --verify
+```
+
+The archive and actual extraction-test evidence are written to the ignored
+`generated-artifacts/submission/` directory. Uploaded files, logs, sessions,
+environment files and Git history are excluded. The pinned PDF.js runtime and
+its license are included. A working development preview is not proof of a
+working published judge URL; that must be checked separately after publishing.
+
 ## Run
 
 ### In this project
