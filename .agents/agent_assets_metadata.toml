@@ -112,3 +112,10 @@ mtime_ms = 1795684350301
 storage_uri = "gcs://replit-rams-assets-sisko/rams/assets/repl:1bf81b07-135c-4f07-a84d-c5ca7be55d4b/842c54b5-9218-44e2-a8fb-bee5ad092b5f/35116c5e-3940-4eed-b565-8059874c1e0a"
 storage_version_token = "1795684392497748"
 content_type = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+
+[[outputs]]
+id = "a2oXFsR4s7Tpv5yB2SRm3"
+uri = "file://artifacts/masar-al-adl-film/public/audio/bg_music.mp3"
+type = "audio"
+title = "background music"
+description = "Generated music: Cinematic minimal institutional instrumental scoring an Arabic civic-tech product film. Soft piano pulse, warm strings, light ticking percussion, 92 BPM. Quiet tense intro, a clear l…"

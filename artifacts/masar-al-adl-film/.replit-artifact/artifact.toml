@@ -1,0 +1,29 @@
+kind = "video"
+videoAspectRatio = "16:9"
+previewPath = "/masar-al-adl-film/"
+title = "مسار العدل — الفيديو التعريفي"
+description = "فيديو عربي متحرك للتعريف بالنموذج الأولي لمسار العدل والمشكلة القضائية ورحلة الطلب والمزايا الحالية وحدود الأتمتة الذكية."
+version = "1.0.0"
+id = "artifacts/masar-al-adl-film"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/masar-al-adl-film/" ]
+localPort = 18711
+
+[services.development]
+run = "pnpm --filter @workspace/masar-al-adl-film run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/masar-al-adl-film", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/masar-al-adl-film/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "18711"
+BASE_PATH = "/masar-al-adl-film/"
